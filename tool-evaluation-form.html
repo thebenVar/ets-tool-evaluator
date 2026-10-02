@@ -157,7 +157,7 @@
   @media print{
     html,body{background:#fff}
     *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .bar,nav.tabs,header.top{display:none!important}
+    .bar,nav.tabs,header.top,.sitenav{display:none!important}
     .wrap{max-width:none;padding:0;margin:0}
     section.pane{display:none!important}
     section.pane#pane-summary{display:block!important}
@@ -173,9 +173,13 @@
     a{color:inherit;text-decoration:none}
     .page>p:last-child{break-inside:avoid}
   }
+  .sitenav{background:var(--ink);color:#fff;font-size:11.5px;padding:7px 14px;position:sticky;top:0;z-index:50}
+  .sitenav a{color:#fff;text-decoration:none}
+  .sitenav a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
+<div class="sitenav"><a href="/">&larr; ETS 2026 Tool Evaluation</a></div>
 <div class="wrap">
   <header class="top">
     <h1 id="formtitle">Tool Evaluation Form</h1>
