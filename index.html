@@ -26,8 +26,14 @@
   .menu .arrow{float:right;font-family:var(--serif);color:var(--ink3)}
   .section-label{margin:28px 0 10px;font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--ink3)}
   .menu.profiles{grid-template-columns:1fr 1fr;gap:10px}
+  .menu.profiles .item{background:var(--paper);border:1px solid var(--rule);padding:16px 20px}
+  .menu.profiles .item:hover{border-color:var(--ink3)}
+  .menu.profiles a.title{display:block;text-decoration:none;color:inherit}
   .menu.profiles h2{font-size:15px}
   .menu.profiles p{font-size:12.5px}
+  .menu.profiles a.dl{display:inline-block;margin-top:10px;font-size:11.5px;color:var(--ink3);text-decoration:none;
+    border-bottom:1px solid var(--rule)}
+  .menu.profiles a.dl:hover{color:var(--ink2);border-color:var(--ink3)}
   @media screen and (max-width:620px){.menu.profiles{grid-template-columns:1fr}}
   footer{margin-top:20px;font-size:11.5px;color:var(--ink3)}
 </style>
@@ -51,26 +57,41 @@
 
   <div class="section-label">Tool profiles</div>
   <div class="menu profiles">
-    <a href="profiles/ets-2026-scripture-forge.pdf">
-      <h2>Scripture Forge</h2>
-      <p>Generates a first-pass draft of a Bible book from a team's own translation work, delivered into Paratext.</p>
-    </a>
-    <a href="profiles/ets-2026-faithbridge.pdf">
-      <h2>Faithbridge</h2>
-      <p>Answers a translator's questions about a passage by searching a curated set of translation resources.</p>
-    </a>
-    <a href="profiles/ets-2026-scribe.pdf">
-      <h2>Scribe</h2>
-      <p>An offline editor for recording, checking and re-recording oral Bible translation. No AI.</p>
-    </a>
-    <a href="profiles/ets-2026-aqua.pdf">
-      <h2>AQuA</h2>
-      <p>Flags the places in a draft most likely to need a checker's attention, against a reference translation.</p>
-    </a>
-    <a href="profiles/ets-2026-checking-assistant.pdf">
-      <h2>Paratext Checking Assistant</h2>
-      <p>Reads a draft inside Paratext and raises findings on meaning and naturalness for a reviewer to judge.</p>
-    </a>
+    <div class="item">
+      <a class="title" href="profiles/ets-2026-scripture-forge.html">
+        <h2>Scripture Forge</h2>
+        <p>Generates a first-pass draft of a Bible book from a team's own translation work, delivered into Paratext.</p>
+      </a>
+      <a class="dl" href="profiles/ets-2026-scripture-forge.pdf" download>Download PDF ↓</a>
+    </div>
+    <div class="item">
+      <a class="title" href="profiles/ets-2026-faithbridge.html">
+        <h2>Faithbridge</h2>
+        <p>Answers a translator's questions about a passage by searching a curated set of translation resources.</p>
+      </a>
+      <a class="dl" href="profiles/ets-2026-faithbridge.pdf" download>Download PDF ↓</a>
+    </div>
+    <div class="item">
+      <a class="title" href="profiles/ets-2026-scribe.html">
+        <h2>Scribe</h2>
+        <p>An offline editor for recording, checking and re-recording oral Bible translation. No AI.</p>
+      </a>
+      <a class="dl" href="profiles/ets-2026-scribe.pdf" download>Download PDF ↓</a>
+    </div>
+    <div class="item">
+      <a class="title" href="profiles/ets-2026-aqua.html">
+        <h2>AQuA</h2>
+        <p>Flags the places in a draft most likely to need a checker's attention, against a reference translation.</p>
+      </a>
+      <a class="dl" href="profiles/ets-2026-aqua.pdf" download>Download PDF ↓</a>
+    </div>
+    <div class="item">
+      <a class="title" href="profiles/ets-2026-checking-assistant.html">
+        <h2>Paratext Checking Assistant</h2>
+        <p>Reads a draft inside Paratext and raises findings on meaning and naturalness for a reviewer to judge.</p>
+      </a>
+      <a class="dl" href="profiles/ets-2026-checking-assistant.pdf" download>Download PDF ↓</a>
+    </div>
   </div>
 
   <footer>Emerging Tech Summit 2026</footer>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ETS 2026 Tool Evaluations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --paper: #fff; --ink: #1a242e; --ink-2: #4a5663; --ink-3: #7a8591;
+    --rule: #cfd5db; --rule-2: #e6eaee; --panel: #f3f5f7;
+    --user: #1f6b4b; --user-bg: #dff0e7;
+    --builder: #915f0a; --builder-bg: #f7e9cc;
+    --doc: #274f8f; --doc-bg: #dfe8f7;
+    --pending: #7f8a95; --pending-bg: #eceff2;
+    --test: #6b3fa0; --test-bg: #ebe3f5;
+    --facil: #3a7d6e; --facil-bg: #dcefe9;
+    --veto: #a1372c;
+    --serif: "Literata", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: #d9dde2; font-family: var(--sans); color: var(--ink); font-size: 9.6pt; line-height: 1.42; padding: 24px 0 48px; }
+  .page { width: 210mm; min-height: 297mm; background: var(--paper); margin: 0 auto 22px; padding: 14mm 16mm 13mm; position: relative; box-shadow: 0 2px 18px rgba(0,0,0,.14); display: flex; flex-direction: column; }
+  @page { size: A4; margin: 0; }
+  @media print {
+    body { background: none; padding: 0; }
+    .page { box-shadow: none; margin: 0; break-after: page; }
+  }
+  h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; margin: 0; line-height: 1.15; letter-spacing: -0.005em; }
+  p { margin: 0; }
+  .run { display: flex; justify-content: space-between; font-size: 8pt; color: var(--ink-3); padding-bottom: 6px; border-bottom: 1px solid var(--rule); margin-bottom: 9mm; }
+  .run b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---- page 1 ---- */
+  .titlerow { display: flex; align-items: flex-start; gap: 7mm; }
+  .titlerow .logo { flex: 0 0 auto; width: 19mm; height: 19mm; border: 1px solid var(--rule); display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff; }
+  .titlerow .logo img { max-width: 100%; max-height: 100%; }
+  .titlerow .logo .mono { font-family: var(--serif); font-size: 19pt; font-weight: 600; color: var(--ink-3); letter-spacing: -0.02em; }
+  .title h1 { font-size: 26pt; }
+  .title .sub { margin-top: 5px; font-size: 9.5pt; color: var(--ink-2); }
+  .title .sub span + span::before { content: "·"; color: var(--ink-3); margin: 0 7px; }
+
+  .exsum { margin-top: 7mm; border-left: 2.5px solid var(--ink); padding: 2px 0 2px 12px; }
+  .exsum h3 { font-size: 10.5pt; margin-bottom: 4px; }
+  .exsum p { font-size: 9.3pt; color: var(--ink-2); line-height: 1.5; }
+  .exsum p + p { margin-top: 5px; }
+
+  .facts { margin-top: 7mm; display: grid; grid-template-columns: 1fr 1fr; gap: 5mm 8mm; }
+  .fact dt { font-size: 7.6pt; color: var(--ink-3); margin-bottom: 2px; letter-spacing: .01em; }
+  .fact dd { margin: 0; font-size: 9.4pt; }
+  .fact dd small { display: block; color: var(--ink-2); font-size: 8.4pt; margin-top: 2px; }
+
+  .fpblock { margin-top: 7mm; padding-top: 5mm; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 1fr 58mm; gap: 8mm; align-items: start; }
+  .fpblock h3 { font-size: 11pt; margin-bottom: 2px; }
+  .fpblock .lead { font-size: 8.6pt; color: var(--ink-2); margin-bottom: 9px; }
+  .fp { display: grid; grid-template-columns: repeat(14, 1fr); gap: 5px; align-items: end; height: 34mm; padding-bottom: 4px; border-bottom: 1.4px solid var(--ink); }
+  .fp i { display: block; height: 30mm; border: 1.3px dashed var(--pending); border-radius: 2px 2px 0 0; background: linear-gradient(to top, var(--fill) 0 var(--h), transparent var(--h)); }
+  .fp i.user { --fill: var(--user); border-style: solid; border-color: var(--user); }
+  .fp i.doc  { --fill: var(--doc);  border-style: solid; border-color: var(--doc); }
+  .fp i.builder { --fill: var(--builder); border-style: solid; border-color: var(--builder); }
+  .fp i.test { --fill: var(--test); border-style: solid; border-color: var(--test); }
+  .fp i.facil { --fill: var(--facil); border-style: solid; border-color: var(--facil); }
+  .fp i.ai { border-style: dashed; }
+  .fp i.na { --h: 0%; border-style: dotted; border-color: var(--rule); }
+  .fp i.s4 { --h: 100%; } .fp i.s3 { --h: 75%; } .fp i.s2 { --h: 50%; } .fp i.s1 { --h: 25%; } .fp i.pend { --h: 0%; }
+  .fpn { display: grid; grid-template-columns: repeat(14, 1fr); gap: 5px; margin-top: 4px; text-align: center; font-family: var(--serif); font-size: 7.6pt; color: var(--ink-3); }
+  .fpn .v { color: var(--veto); font-weight: 600; }
+  .fpn .na { color: var(--rule); }
+  .weight { background: var(--panel); padding: 10px 12px 11px; font-size: 8.6pt; }
+  .weight h4 { font-size: 9.6pt; margin-bottom: 6px; }
+  .weight .row { display: flex; justify-content: space-between; padding: 4px 0; border-top: 1px solid var(--rule-2); }
+  .weight .row:first-of-type { border-top: 0; }
+  .weight .row b { font-family: var(--serif); font-size: 12pt; font-weight: 600; }
+  .weight .note { margin-top: 8px; color: var(--ink-2); font-size: 7.9pt; line-height: 1.4; }
+
+  .tag { display: inline-block; font-size: 7.3pt; font-weight: 500; line-height: 1; padding: 4px 6px; border-radius: 2px; white-space: nowrap; }
+  .tag.user { color: var(--user); background: var(--user-bg); }
+  .tag.builder { color: var(--builder); background: var(--builder-bg); }
+  .tag.doc { color: var(--doc); background: var(--doc-bg); }
+  .tag.pending { color: var(--pending); background: var(--pending-bg); }
+  .tag.test { color: var(--test); background: var(--test-bg); }
+  .tag.facil { color: var(--facil); background: var(--facil-bg); }
+  .tag.ai { color: var(--ink-2); border: 1px dashed var(--ink-3); }
+  .tag.na { color: var(--ink-3); border: 1px solid var(--rule); }
+
+  .two { margin-top: 7mm; display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+  .two h3 { font-size: 11pt; margin-bottom: 5px; }
+  .two p, .two li { font-size: 8.9pt; color: var(--ink-2); }
+  .two ul { margin: 0; padding-left: 14px; }
+  .two li { margin-bottom: 4px; }
+  .two p + p { margin-top: 6px; }
+  .gate b { color: var(--ink); font-weight: 600; }
+
+  .spacer { flex: 1; }
+  .foot { margin-top: 6mm; padding-top: 6px; border-top: 1px solid var(--rule); font-size: 7.4pt; color: var(--ink-3); display: flex; justify-content: space-between; gap: 12px; }
+
+  /* ---- page 2 ---- */
+  .p2 h2 { font-size: 15pt; margin-bottom: 3px; }
+  .p2 .lead { font-size: 8.6pt; color: var(--ink-2); margin-bottom: 9px; }
+  table.prof { width: 100%; border-collapse: collapse; font-size: 8.3pt; }
+  .prof th { text-align: left; font-weight: 600; font-size: 7.6pt; color: var(--ink-2); padding: 0 6px 5px; border-bottom: 1.4px solid var(--ink); }
+  .prof td { padding: 6px 6px 7px; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+  .prof td.n { width: 6mm; font-family: var(--serif); font-size: 10pt; color: var(--ink-3); padding-left: 0; }
+  .prof td.c { width: 33mm; font-weight: 500; font-size: 8.5pt; }
+  .prof td.c small { display: block; font-weight: 500; font-size: 6.9pt; margin-top: 1px; }
+  .prof td.c small.v { color: var(--veto); } .prof td.c small.t { color: var(--user); }
+  .prof td.s { width: 22mm; white-space: nowrap; }
+  .prof td.g { width: 24mm; }
+  .prof td.b { color: var(--ink-2); font-size: 8pt; line-height: 1.38; }
+  .prof tr.pend td.c, .prof tr.pend td.n { color: var(--ink-3); }
+  .tile { display: inline-flex; align-items: center; gap: 6px; }
+  .tile .num { font-family: var(--serif); font-size: 13pt; font-weight: 600; min-width: 9px; text-align: center; line-height: 1; }
+  .segs { display: inline-flex; gap: 2px; }
+  .segs i { display: block; width: 7px; height: 10px; border: 1.2px solid var(--ink); }
+  .segs i.on { background: var(--ink); }
+  .pend .segs i { border-style: dashed; border-color: var(--pending); }
+  .pend .tile .num { color: var(--pending); }
+  .na .segs i { border-style: dotted; border-color: var(--rule); }
+  .na .tile .num { color: var(--ink-3); font-size: 9pt; }
+  .prov { display: block; font-size: 6.6pt; color: var(--ink-3); margin-top: 3px; }
+  .prov.ct { color: var(--veto); }
+  .prov.ai { color: var(--ink-2); font-style: italic; }
+  .prov.final { color: var(--user); }
+  .exsum.flagged { border-left-color: var(--veto); }
+  .aiuse { margin-top: 5mm; font-size: 7.8pt; color: var(--ink-2); border-top: 1px solid var(--rule-2); padding-top: 5px; }
+  .aiuse b { color: var(--ink); }
+
+  .p2 .bottom { margin-top: 6mm; display: grid; grid-template-columns: 1.3fr 1fr; gap: 8mm; }
+  .p2 .bottom h3 { font-size: 10.5pt; margin-bottom: 4px; }
+  .p2 .bottom p, .p2 .bottom li { font-size: 8.5pt; color: var(--ink-2); }
+  .p2 .bottom ul { margin: 0; padding-left: 14px; }
+  .p2 .bottom li { margin-bottom: 3px; }
+  .p2 .bottom .box { border: 1px solid var(--rule); padding: 8px 10px; margin-top: 8px; font-size: 8.3pt; color: var(--ink-2); }
+  .p2 .bottom .box b { color: var(--ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 5px 8px; align-items: center; margin-top: 8px; font-size: 7.6pt; color: var(--ink-2); }
+
+  /* ---- bundle cover ---- */
+  .cover h1 { font-size: 28pt; margin-top: 4mm; }
+  .cover .cover-sub { margin-top: 6px; font-size: 10pt; color: var(--ink-2); max-width: 150mm; }
+  table.toc { width: 100%; border-collapse: collapse; font-size: 8.4pt; margin-top: 9mm; }
+  .toc th { text-align: left; font-weight: 600; font-size: 7.6pt; color: var(--ink-2); padding: 0 6px 5px; border-bottom: 1.4px solid var(--ink); }
+  .toc td { padding: 7px 6px 8px; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+  .toc td.tool { font-weight: 600; font-size: 9.4pt; font-family: var(--serif); }
+  .toc td.tool small { display: block; font-family: var(--sans); font-weight: 400; font-size: 7.6pt; color: var(--ink-3); margin-top: 2px; }
+  .toc td.pg { text-align: right; font-family: var(--serif); color: var(--ink-3); }
+  .toc td.state { font-size: 8pt; color: var(--ink-2); }
+  .cover-two { margin-top: 9mm; display: grid; grid-template-columns: 1.2fr 1fr; gap: 8mm; }
+  .cover-two h3 { font-size: 11pt; margin-bottom: 5px; }
+  .cover-two p { font-size: 8.9pt; color: var(--ink-2); }
+  .cover-two p + p { margin-top: 6px; }
+  .cover-legend { margin: 4px 0 8px; }
+  .cover-two .box { border: 1px solid var(--rule); padding: 8px 10px; margin-top: 10px; font-size: 8.4pt; color: var(--ink-2); }
+
+  /* ---- cover: keys and disclaimer ---- */
+  .keys { margin-top: 8mm; display: grid; grid-template-columns: 1fr 1fr; gap: 7mm 9mm; }
+  .keys h3 { font-size: 11pt; margin-bottom: 5px; }
+  .keys p, .keys li { font-size: 8.7pt; color: var(--ink-2); }
+  .keys p + p { margin-top: 5px; }
+  dl.keylist { margin: 4px 0 0; }
+  dl.keylist > div { display: grid; grid-template-columns: 34mm 1fr; gap: 7px; padding: 4px 0; border-top: 1px solid var(--rule-2); align-items: baseline; }
+  dl.keylist > div:first-child { border-top: 0; }
+  dl.keylist dt { margin: 0; }
+  dl.keylist dd { margin: 0; font-size: 8.5pt; color: var(--ink-2); }
+  dl.keylist dt .lbl { font-weight: 600; color: var(--ink); font-size: 8.6pt; }
+  dl.keylist dt .lbl.ct { color: var(--veto); }
+  dl.keylist dt .lbl.ai { font-style: italic; color: var(--ink-2); font-weight: 500; }
+  .vetolist { margin: 4px 0 0; padding-left: 0; list-style: none; }
+  .vetolist li { font-size: 8.6pt; color: var(--ink-2); padding: 4px 0; border-top: 1px solid var(--rule-2); }
+  .vetolist li:first-child { border-top: 0; }
+  .vetolist b { color: var(--ink); }
+  .disclaimer { margin-top: 7mm; border: 1.4px solid var(--veto); padding: 9px 12px; font-size: 8.6pt; color: var(--ink-2); }
+  .disclaimer b { color: var(--veto); }
+
+  /* ---- cover: criteria list, tier note, appendix ---- */
+  .critlist { margin: 4px 0 0; column-count: 2; column-gap: 8mm; }
+  .critlist div { break-inside: avoid; padding: 3.5px 0; border-top: 1px solid var(--rule-2); font-size: 8.4pt; color: var(--ink-2); }
+  .critlist div:first-child { border-top: 0; }
+  .critlist b { color: var(--ink); font-weight: 600; }
+  .critlist .mark { color: var(--veto); font-weight: 600; }
+  .critlist .mark.t { color: var(--user); }
+  .tiernote { margin-top: 7mm; background: var(--panel); padding: 10px 12px; font-size: 8.7pt; color: var(--ink-2); }
+  .tiernote h3 { font-size: 10.5pt; margin-bottom: 4px; }
+  .tiernote p + p { margin-top: 5px; }
+  .tiernote b { color: var(--ink); }
+  table.matrix { width: 100%; border-collapse: collapse; font-size: 7.2pt; margin-top: 6mm; table-layout: fixed; }
+  .matrix th { text-align: left; font-weight: 600; font-size: 7pt; color: var(--ink-2); padding: 0 5px 5px; border-bottom: 1.4px solid var(--ink); }
+  .matrix th.c { width: 30mm; }
+  .matrix td { padding: 6px 5px 7px; border-bottom: 1px solid var(--rule-2); vertical-align: top; color: var(--ink-2); line-height: 1.32; }
+  .matrix td.c { color: var(--ink); font-weight: 600; font-size: 8pt; }
+  .matrix td.c small { display: block; font-weight: 400; font-size: 6.8pt; color: var(--ink-2); margin-top: 2px; font-style: italic; }
+  .matrix td.c small.v { color: var(--veto); font-style: normal; }
+  .matrix td.c small.t { color: var(--user); font-style: normal; }
+  .matrix td.c .num { font-family: var(--serif); color: var(--ink-3); margin-right: 3px; }
+
+  /* ---- participant-facing summary blocks ---- */
+  .sub a, .where a, .fact a, .cat a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule); }
+  .statline { display: flex; flex-wrap: wrap; gap: 3mm 5mm; margin-top: 5px; }
+  .statline .st { border: 1px solid var(--rule-2); padding: 4px 7px 5px; min-width: 17mm; }
+  .statline .st b { display: block; font-family: var(--serif); font-size: 12pt; font-weight: 600; line-height: 1; }
+  .statline .st span { display: block; font-size: 6.9pt; color: var(--ink-3); margin-top: 3px; line-height: 1.25; }
+  .kpis { margin-top: 6mm; }
+  .kpis h3 { font-size: 10.5pt; margin-bottom: 2px; }
+  .kpis .lead { font-size: 8.2pt; color: var(--ink-2); margin-bottom: 6px; }
+  .kpigrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .kpi { border: 1px solid var(--rule); border-top: 2.5px solid var(--builder); padding: 8px 10px 9px; }
+  .kpi .tagline { font-size: 6.6pt; color: var(--builder); font-weight: 600; letter-spacing: .03em; text-transform: uppercase; }
+  .kpi .val { font-family: var(--serif); font-size: 17pt; font-weight: 600; line-height: 1.05; margin-top: 3px; }
+  .kpi .lab { font-size: 8pt; color: var(--ink); margin-top: 2px; }
+  .kpi .note { font-size: 7.2pt; color: var(--ink-2); margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--rule-2); line-height: 1.35; }
+  .kpi.none { border-top-color: var(--pending); }
+  .kpi.none .tagline { color: var(--pending); }
+
+  /* ---- catalogue ---- */
+  table.cat { width:100%; border-collapse:collapse; font-size:8.2pt; margin-top:6mm; }
+  .cat th { text-align:left; font-weight:600; font-size:7.2pt; color:var(--ink-2); padding:0 6px 5px; border-bottom:1.4px solid var(--ink); }
+  .cat td { padding:6px 6px 7px; border-bottom:1px solid var(--rule-2); vertical-align:top; color:var(--ink-2); line-height:1.35; }
+  .cat td.nm { color:var(--ink); font-weight:600; font-family:var(--serif); font-size:9pt; width:34mm; }
+  .cat td.nm small { display:block; font-family:var(--sans); font-weight:400; font-size:7pt; color:var(--ink-3); margin-top:2px; }
+  .cat td.nm small.px { color:var(--ink-2); font-style:italic; margin-top:3px; padding-top:3px; border-top:1px solid var(--rule-2); }
+  .cat td.dm { width:30mm; }
+  .cat td.wh { width:34mm; font-size:7.4pt; }
+  .cat tr.group td { background:var(--panel); font-weight:600; color:var(--ink); font-family:var(--serif); font-size:8.6pt; padding:7px 6px; }
+
+</style>
+</head>
+<body>
+
+
+
+<!-- ====================================================== HOW TO READ -->
+<section class="page cover">
+  <div class="run"><span><b>ETS 2026</b> · Tool evaluation</span><span>How to read this</span></div>
+  <h2 style="font-size:17pt">How to read this</h2>
+  <p class="cover-sub" style="font-size:9pt">Each tool has two pages. The <b>Summary page</b> gives the short version: what the tool is, who has told us what, and where the evidence stands. The <b>Findings &amp; Evidence</b> page sets out all fourteen criteria, the score each has been given so far, and what that score rests on. Read the basis column rather than the number: the number is shorthand, the basis is the finding.</p>
+
+  <div class="keys">
+    <div>
+      <h3>Where a score comes from</h3>
+      <p>Every criterion is scored 1 to 4 against wording agreed in advance, so that a 3 means the same thing for every tool. Scores are never added up or averaged, and there is no overall mark. A tool that scores 2 on something your organisation does not care about may still be the right tool for you.</p>
+      <dl class="keylist">
+        <div><dt><span class="lbl ">agreed</span></dt><dd>Reviewers scored it independently, then compared scores and agreed the result on the record. Where they had differed, they settled it by discussion, not by averaging or a vote. None appear in this edition yet.</dd></div><div><dt><span class="lbl ">provisional</span></dt><dd>Every reviewer who scored it gave the same number, but they have not yet discussed it. None appear in this edition yet.</dd></div><div><dt><span class="lbl ct">reviewers differ</span></dt><dd>Reviewers scored it independently and landed on different numbers. Every score given is shown; the bar on the chart shows the lowest. None appear in this edition yet.</dd></div><div><dt><span class="lbl ai">AI-proposed</span></dt><dd>A draft score with its reasoning, prepared with AI assistance from the evidence we gathered. It is not a human judgement.</dd></div><div><dt><span class="lbl ct">contested</span></dt><dd>The evidence splits, or our own wording does not settle the case. Worth reading the basis.</dd></div>
+      </dl>
+    </div>
+    <div>
+      <h3>Where the evidence comes from</h3>
+      <p>Every score carries a tag saying what it rests on. The tags are not interchangeable: what a translator reports from a live project counts for more than what a product page says, and both are printed so you can weigh them yourself.</p>
+      <dl class="keylist">
+        <div><dt><span class="tag user">User-reported</span></dt><dd>A translator or team using the tool in a live project told us directly, through a survey or an interview we ran.</dd></div><div><dt><span class="tag facil">Facilitator-reported</span></dt><dd>A facilitator, coordinator or support worker told us about the teams they serve. Close to the work, but second-hand.</dd></div><div><dt><span class="tag test">Our testing</span></dt><dd>We used the tool ourselves against a fixed set of questions and recorded what happened.</dd></div><div><dt><span class="tag doc">Documentation</span></dt><dd>A published page, release note, policy or repository, with the date we read it.</dd></div><div><dt><span class="tag builder">Builder claim</span></dt><dd>The people who make the tool told us. Printed as theirs, not as established fact.</dd></div><div><dt><span class="tag pending">Pending</span></dt><dd>Asked for but not yet in hand. The page says what was requested and when.</dd></div><div><dt><span class="tag na">N/A</span></dt><dd>The criterion does not apply — for example, explainability for a tool with no AI in it.</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="keys" style="grid-template-columns: 1fr;">
+    <div>
+      <h3>The three criteria we treat as decisive</h3>
+      <p>Eleven of the fourteen criteria describe how well a tool does something. Three describe whether it is safe to rely on at all, and a score of 1 on any of them is worth more of your attention than a handful of 2s elsewhere. They are marked in red on the Findings &amp; Evidence page. Nothing here removes a tool from anyone's list — that decision belongs to your organisation — but these are the three we would want answered before committing a project to a tool.</p>
+      <ul class="vetolist">
+        <li><b>1. Problem Alignment</b> — whether the tool solves a problem translation teams actually have. A tool that is impressive but answers a question nobody asked will not survive contact with a project, however well it scores elsewhere.</li><li><b>11. Cost & Financial Sustainability</b> — whether a team can still afford it in three years. Adoption is not a purchase but a dependency: a tool whose funding quietly ends leaves a project stranded mid-book.</li><li><b>12. Data Governance & Sovereignty</b> — who holds the translation text, on what terms, and who else can see it. Unpublished Scripture is a community's own work and sometimes a safety matter, and unlike the other criteria a mistake here cannot be undone later.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tiernote" style="margin-top:7mm">
+    <h3>The two questions we ask before a tool goes on this list</h3>
+    <p><b>Can we assess it?</b> That is: is it in scope, and can we find out enough about it? A tool qualifies if it serves Bible translation or related ministry and if we can gather enough information to answer the fourteen questions — from the people using it where they exist, and otherwise from documentation, from the people who built it and from our own use. A tool we cannot find out enough about is named in the wider catalogue and marked as not assessed, rather than being scored on guesswork.</p>
+    <p><b>Is it worth your time here?</b> That is: among the tools we could assess, we gave priority to those that address a problem organisations in this room actually have, that more than one team has used, or that stand for a choice many of you are weighing this year. This is a decision about what fits a short session, not a ranking, and a tool being absent says nothing against it.</p>
+  </div>
+
+  <div class="keys" style="grid-template-columns: 1fr;">
+    <div>
+      <h3>The fourteen criteria</h3>
+      <p>Every tool is asked the same fourteen questions. <span class="mark" style="color:var(--veto);font-weight:600">&#9679;</span> marks the three we treat as decisive; <span style="color:var(--user);font-weight:600">&#9679;</span> marks the four that need real users before they can be answered. The full wording for each score, 1 to 4, is in the appendix at the back.</p>
+      <div class="critlist">
+        <div><b>1. Problem Alignment</b> <span class="mark">&#9679;</span> — What problem does it solve?</div><div><b>2. Setup Complexity</b> — How easy is it to set up?</div><div><b>3. Workflow Integration</b> — Can this tool be easily integrated into the workflow?</div><div><b>4. User Reach & Adoption</b> <span class="mark t">&#9679;</span> — How many people are using it, and who are they?</div><div><b>5. Ease of Use & Learning Curve</b> — How intuitive is the tool to use daily?</div><div><b>6. Project Implementation</b> <span class="mark t">&#9679;</span> — How many projects have implemented this tool?</div><div><b>7. Implementation Horizon</b> — What can be implemented now, and what is promised later?</div><div><b>8. Workflow Stage Fit</b> — Where in its domain's workflow does the tool fit, and how much of that workflow does it cover?</div><div><b>9. Post-Implementation Support</b> <span class="mark t">&#9679;</span> — What support is available after a team adopts it?</div><div><b>10. Retention & Sustained Impact</b> <span class="mark t">&#9679;</span> — What difference is it making on the ground, over time?</div><div><b>11. Cost & Financial Sustainability</b> <span class="mark">&#9679;</span> — Is the pricing model viable and sustainable long-term?</div><div><b>12. Data Governance & Sovereignty</b> <span class="mark">&#9679;</span> — How are data ownership, privacy, and security handled?</div><div><b>13. Explainability & Human Steering</b> — Can users understand and control why the AI gives an answer?</div><div><b>14. Cultural & Safety Alignment</b> — Are outputs culturally accurate, ethically aligned, and free of regional bias?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tiernote">
+    <h3>Why some pages leave four criteria unscored</h3>
+    <p>Four of the fourteen can only be answered by people using the tool in real work: <b>4 User Reach &amp; Adoption</b>, <b>6 Project Implementation</b>, <b>9 Post-Implementation Support</b> and <b>10 Retention &amp; Sustained Impact</b>. Where we could reach such users, a tool is assessed against all fourteen — what we call <b>Tier 1</b>. Where we could not, it is assessed against the other ten only, which we call <b>Tier 2</b>, and those four are left deliberately unscored rather than guessed at.</p>
+    <p>A Tier 2 page is not a worse tool or a lesser assessment. It usually means the tool is new, or that its users were beyond our reach in the time we had. Newer tools cannot show a user base until someone adopts them, so treating the absence of one as a mark against a tool would make it impossible for any new tool to be adopted at all. Where a tool is at Tier 2, the page says what we would need in order to answer the remaining four.</p>
+  </div>
+
+  <div class="disclaimer"><b>Please read this before using the scores.</b> Every score in this document is a draft prepared with AI assistance from the evidence we gathered, and is marked as one. A draft score is not a human judgement. This tool has not yet been scored by our team. The evidence behind every score — the surveys, interviews, correspondence with builders, trial records and our own testing — is the work of our team, and each page says where every finding came from. Please treat the numbers as a starting point for your own judgement, not as settled findings.</div>
+
+  <div class="spacer"></div>
+  <div class="foot"><span>Snapshot of 1 October 2026</span><span>Evaluation framework v1 · Emerging Tech Summit 2026</span></div>
+</section>
+
+
+<!-- ====================================================== PAGE 1 -->
+<section class="page">
+  <div class="run"><span><b>ETS 2026</b> · Tool evaluation · Translation, written</span><span>AQuA · Summary page (1 of 2)</span></div>
+
+  <div class="titlerow">
+    <div class="logo"><span class="mono">A</span></div>
+    <div class="title">
+      <h1>AQuA</h1>
+      <div class="sub"><span>SIL Global</span><span><a href="https://ai.sil.org/projects/AQuA">ai.sil.org/projects/AQuA</a></span><span>Free; open to anyone in Bible translation since April 2024</span><span>Web application</span><span>Uses AI to assess quality</span></div>
+    </div>
+  </div>
+
+  <div class="exsum ">
+    <h3>Executive summary</h3>
+    <p>AQuA helps a checker pinpoint the places in a draft most likely to need their attention, and helps them notice patterns across an entire translation. It compares the draft against a reference translation of the team's choosing and presents what it finds as heat maps by book and chapter, charts of how closely meaning and wording correspond, and tables of words that may have been left out. It also tracks how consistently biblical terms are rendered across a text, and can assess back translations in the same way as vernacular ones.</p><p>This assessment draws on published documentation; a detailed account from the builder on 29 September; written feedback from two translation consultants using AQuA on live projects; and three shorter testimonials the builder publishes. All of the user voices reached us through the builder. The two detailed accounts are specific enough to check and we treat them as user evidence; the three short testimonials were selected by the builder and are recorded as the builder's material.</p><p>The tool is unusually clear about its own limits, and says so in writing: its output describes the text rather than judging it, it makes mistakes, not every outlier is a problem, and looking only at outliers will not find every problem. One of the two users confirms that from practice, in both directions — he describes flags that turned out to be nothing, and a real error the tool did not flag.</p><p>For an adopting organisation the thing to weigh is data. A whole draft is uploaded to a website; terms of service exist and a warning appears before translation text reaches a third-party service; the builder says data is kept indefinitely unless a user asks for it to be deleted, and that the third party is deliberately not named because the team moves between providers as models improve, using only companies that undertake not to train on the data. Where processing happens geographically is still not stated.</p>
+  </div>
+
+  <dl class="facts">
+    <div class="fact"><dt>What it is for, and where it fits</dt><dd>Written translation: quality checking<small>One of two tools we assessed at the checking stage, alongside the Paratext Checking Assistant — and a useful contrast, since the two go about it differently</small></dd></div>
+    <div class="fact"><dt>How much evidence this rests on</dt><dd>Two users, the builder's account, and published documentation<div class="statline"><div class="st"><b>2</b><span>users heard from</span></div><div class="st"><b>56</b><span>signed in over 90 days, per the builder</span></div><div class="st"><b>4</b><span>languages named in use</span></div><div class="st"><b>0</b><span>users reached independently</span></div></div><small>Both users were introduced to us by the builder. We did not reach anyone independently, and we have heard from nobody who stopped using it</small></dd></div>
+    <div class="fact"><dt>Our connections to this tool</dt><dd>Built by SIL Global. Our contact on the AQuA team gave us the builder's account and introduced us to two users; she took no part in scoring, and no member of our evaluation team works on AQuA or supports its users.</dd></div>
+    <div class="fact"><dt>Who built it</dt><dd>Built by SIL Global. The figures on this page are the builder's own.<small>Not known: where uploaded drafts are processed, and how often a flag turns out not to be a problem.</small></dd></div>
+  </dl>
+
+  
+  <div class="kpis">
+    <h3>Figures the builder gave us</h3>
+    <p class="lead">Supplied by the people who make the tool. We print them as given and have not verified them independently.</p>
+    <div class="kpigrid">
+      <div class="kpi "><div class="tagline">Builder-reported</div><div class="val">56</div><div class="lab">people signed in over the past 90 days</div><div class="note">The builder's figure, with several users in South Asia. 250 visits and over a thousand page views in the same period.</div></div><div class="kpi "><div class="tagline">Builder-reported</div><div class="val">Apr 2024</div><div class="lab">open to anyone in Bible translation since</div><div class="note">This settles a contradiction we had recorded: an older article describing it as a beta for selected trial users is out of date.</div></div><div class="kpi "><div class="tagline">Still unanswered</div><div class="val">—</div><div class="lab">how often a flag turns out not to be a problem</div><div class="note">No figure is published, and on the evidence we have, none may exist. The builder says plainly that not every outlier is an error.</div></div>
+    </div>
+  </div>
+  
+
+  <div class="fpblock">
+    <div>
+      <h3>All fourteen questions at a glance</h3>
+      <p class="lead">One bar per question, numbered to match the rows overleaf. The taller the bar, the higher the score out of four; the colour shows what kind of evidence that score rests on. Outlined bars are questions we have not been able to answer yet. Hatched bars are draft scores still to be reviewed.</p>
+      <div class="fp" role="img" aria-label="Scores by criterion">
+        <i class="user s3 ai"></i><i class="doc s3 ai"></i><i class="doc s3 ai"></i><i class="builder s3 ai"></i><i class="user s3 ai"></i><i class="user s3 ai"></i><i class="builder s3 ai"></i><i class="doc s3 ai"></i><i class="user s3 ai"></i><i class="user s3 ai"></i><i class="builder s3 ai"></i><i class="builder s3 ai"></i><i class="user s3 ai"></i><i class="user s3 ai"></i>
+      </div>
+      <div class="fpn"><span class="v">1</span><span class="">2</span><span class="">3</span><span class="">4</span><span class="">5</span><span class="">6</span><span class="">7</span><span class="">8</span><span class="">9</span><span class="">10</span><span class="v">11</span><span class="v">12</span><span class="">13</span><span class="">14</span></div>
+      <div class="legend"><span class="tag user">User-reported</span><span class="tag doc">Documentation</span><span class="tag builder">Builder claim</span><span class="tag pending">Pending</span><span class="tag ai">AI-proposed</span><span style="color:var(--veto)">Red numbers: veto criteria</span></div>
+    </div>
+    <div class="weight">
+      <h4>Where the evidence came from</h4>
+      <div class="row"><span>User-reported</span><b>7</b></div><div class="row"><span>Documentation</span><b>3</b></div><div class="row"><span>Builder claim</span><b>4</b></div>
+      <p class="note"></p>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="gate">
+      <h3>Before scoring</h3>
+      <p><b>Can we assess it? Yes.</b> In scope; assessable from documentation, a full account from the builder, and written feedback from two users the builder introduced. Nobody was reached independently, which the page says plainly.</p>
+      <p><b>Is it worth your time here? Yes.</b> It is one of two quality-assurance tools we assessed, and it inverts the question the others raise: not whether AI can help produce a translation, but whether AI can help judge one. For decision makers that is the more consequential claim, because a quality signal that is wrong is worse than a draft that is wrong.</p>
+    </div>
+    <div>
+      <h3>What two users told us, and what the builder says</h3>
+      <ul><li>A consultant at Biblica reports that a New Testament revision which two translators had failed to get past a consultant in six months was completed and approved in four months by one translator with minimal revision experience, working with AQuA. In the testimonial, dated July 2024, the team says it runs its texts through AQuA after every milestone.</li><li>A second consultant, checking Tagalog and Cebuano, gives worked examples: a missing phrase in 2 Peter, a literalness question in Romans 13, a redundancy in Jude caught through sentence-length outliers. He says AQuA found errors that manual checking in Paratext would not easily have caught.</li><li>The same consultant reports false positives — a word flagged as unmatched where the translation was fine — and says the answer is to read word correspondence alongside semantic similarity rather than either alone. He also found something AQuA missed: an untranslated connective that the table did not highlight.</li><li>The same consultant describes a learning curve and credits a colleague's explanation and a video tutorial. The builder has since told us that tutorial was withdrawn about a year ago as out of date and has not been replaced, so a newcomer today has less to work from.</li><li>The builder states in writing that AQuA's output is descriptive rather than a judgement, that it makes mistakes, and that investigating outliers alone will not find every problem.</li><li>In India the comparison translations most used are Hindi and Malayalam. Terms of service are presented on first sign-in, and a warning appears before translation text is sent to a third-party service that has promised not to train on it.</li><li>Among the builder's published testimonials, one adds a use we had not recorded: sharing AQuA's findings with a team as a way of raising problems without anyone feeling personally criticised. Another mentions back-translation support and starter questions, features our description does not cover.</li><li>A user can connect to Paratext from AQuA's upload page and pull a translation in directly through Paratext's API, which also makes back translations straightforward to assess. There is no route in the other direction: AQuA cannot be opened from within Paratext.</li></ul>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="foot"><span>Snapshot 29 September 2026 · Scores marked AI-proposed are drafts and will be replaced by reviewed scores</span><span>Evaluation framework v1 · Emerging Tech Summit 2026</span></div>
+</section>
+
+<!-- ====================================================== PAGE 2 -->
+<section class="page p2">
+  <div class="run"><span><b>ETS 2026</b> · Tool evaluation · Translation, written</span><span>AQuA · Findings &amp; Evidence (2 of 2)</span></div>
+
+  <h2>Findings &amp; Evidence</h2>
+  <p class="lead">Each score sits against a written anchor (1 unsatisfactory, 2 developing, 3 proficient, 4 exemplary). The basis column says what the score rests on and what would change it. Scores marked AI-proposed are drafts prepared from the evidence on file and are still to be reviewed by two people; the appendix at the back gives the wording each score is measured against.</p>
+
+  <table class="prof">
+    <thead><tr><th></th><th>Criterion</th><th>Score</th><th>Evidence</th><th>Basis</th></tr></thead>
+    <tbody>
+      
+      <tr class=""><td class="n">1</td><td class="c">Problem Alignment<small class="v">Decisive</small></td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">The problem is clearly stated: checking is slow, and it is hard to know where to look first. Two users the builder put us in touch with describe it working. A consultant at Biblica reports that a New Testament revision which two translators had failed to get past a consultant in six months was completed and approved in four by a single translator with minimal revision experience, using AQuA to find the problems. A second consultant, checking Tagalog and Cebuano, says AQuA caught errors that manual checking in Paratext would not easily have found. Both accounts come from people the builder chose to introduce us to, which is worth holding in mind. The builder also publishes three shorter testimonials, two from unnamed SIL consultants and one from a named manager at Biblica. These are quotes the builder selected and we treat them as the builder's material rather than as user evidence, but they are consistent with the two detailed accounts: one describes finding in minutes what would otherwise take hours or weeks.</td></tr>
+      
+      <tr class=""><td class="n">2</td><td class="c">Setup Complexity</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag doc">Documentation</span></td><td class="b">Nothing to install: it runs in a browser, and has been open to anyone working in Bible translation since April 2024 through a sign-up form. The terms of service are presented on first sign-in and remain available on the Help page.</td></tr>
+      
+      <tr class=""><td class="n">3</td><td class="c">Workflow Integration</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag doc">Documentation</span></td><td class="b">Correcting our earlier reading: there is a connection, and it runs inward. From AQuA's upload page a user can connect to Paratext and pull their translation straight in through Paratext's API, which the builder says also makes back translations easy to assess — a few extra clicks once the first translation is connected. What does not exist is the return leg: AQuA cannot be opened from inside Paratext, and findings leave by the user reading the screen and writing notes elsewhere. One consultant describes leaving notes for the translator by hand. The builder hopes to build an extension for Paratext 10, which does not yet exist. Would change it: a return leg — findings travelling back into Paratext rather than being copied by hand</td></tr>
+      
+      <tr class=""><td class="n">4</td><td class="c">User Reach & Adoption<small class="t">Needs real users</small></td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag builder">Builder claim</span></td><td class="b">The builder reports 56 people signing in over the past ninety days, several of them in South Asia, with 250 visits and over a thousand page views. Users are mostly translation consultants, but also translators, consultants in training, project coordinators, technology consultants and academics. That is a modest but real spread across roles. Open to anyone in Bible translation since April 2024. Would change it: how many of the 56 are in South Asia, and how many projects they represent</td></tr>
+      
+      <tr class=""><td class="n">5</td><td class="c">Ease of Use & Learning Curve</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed, contested</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">Split, and the split is instructive. One consultant reports that a translator with minimal revision experience picked it up and worked productively with visual aids — graphs, colour schemes, pie charts, glosses. Another says plainly that there is a learning curve, and credits a colleague's explanation and a video tutorial from the builder for getting him through it. He also suggests the tool suits a later stage of a project, used by a consultant or someone able to interpret the results, rather than by anyone at any point. The interface is in English. A third account, from a named manager at Biblica among the builder's published testimonials, describes the visual presentation as the thing that made the tool usable for someone who found a wall of text in Paratext overwhelming — which is the same reason the Biblica consultant gives, from the opposite direction, for it working with an inexperienced translator. Would change it: more users, to see whether the learning curve or the ease is the common experience</td></tr>
+      
+      <tr class=""><td class="n">6</td><td class="c">Project Implementation<small class="t">Needs real users</small></td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">Named projects in use: a New Testament revision at Biblica, and Tagalog and Cebuano checking by a second consultant. The builder reports users across several roles and regions but did not give a project count. Two field case studies were published in 2023.</td></tr>
+      
+      <tr class=""><td class="n">7</td><td class="c">Implementation Horizon</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag builder">Builder claim</span></td><td class="b">Generally available to anyone in Bible translation since April 2024 — which settles a contradiction we had recorded, where a tool directory listed it as available while an older article described it as in beta for selected trial users. The older article is out of date. The builder's stated next step is an extension for Paratext 10. There is no published changelog or dated roadmap.</td></tr>
+      
+      <tr class=""><td class="n">8</td><td class="c">Workflow Stage Fit</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag doc">Documentation</span></td><td class="b">It does one job fully — assessing the quality of a draft. It is one of two tools we assessed at the checking stage, and it approaches that stage differently from the other: it scores a whole draft against a reference and shows where the outliers are, rather than raising findings one at a time. Work arrives by upload and leaves by the user reading the screen and writing notes elsewhere, so there is no continuity into the rest of a team's workflow. One of the builder's published testimonials adds a use we had not recorded: sharing AQuA's findings with a translation team as a way of raising problems without anyone feeling personally criticised. That is a social property of the output rather than a technical one, and if it holds it matters at the checking stage as much as the algorithms do.</td></tr>
+      
+      <tr class=""><td class="n">9</td><td class="c">Post-Implementation Support<small class="t">Needs real users</small></td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">There is a team email address, a Help page carrying the terms of service, and an account-request route. One consultant credits a colleague's explanation and a video tutorial for getting him started; the builder has since told us that tutorial was recorded in January 2024, went out of date and was withdrawn about a year ago, and has not been replaced. So a newcomer today has less to work from than that account suggests, which matters given that both users describe a learning curve. How quickly problems are resolved, we do not know. Would change it: a current tutorial, and evidence of how quickly problems get resolved</td></tr>
+      
+      <tr class=""><td class="n">10</td><td class="c">Retention & Sustained Impact<small class="t">Needs real users</small></td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">One team reports sustained use. In a testimonial dated July 2024, a Biblica consultant says the team had been using AQuA for its revision work “since last year [2023]”, and that “now, after every milestone in our translation process, we run our texts through AQuA”. So that account covers roughly a year of use as of mid-2024, and we do not know whether the team is still using it today. A second consultant is using it on two live checking projects. Against that, the builder's own figure of 56 sign-ins in ninety days is small, and we have no evidence about anyone who tried it and stopped — both users we heard from were introduced to us by the builder. Would change it: anyone who tried it and stopped — we have only heard from users the builder introduced</td></tr>
+      
+      <tr class=""><td class="n">11</td><td class="c">Cost & Financial Sustainability<small class="v">Decisive</small></td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag builder">Builder claim</span></td><td class="b">If AQuA disappeared in two years, nothing a team had produced would be lost — it reads a draft and reports on it rather than holding the work. What would be lost is a way of deciding where to look first when checking, which a team would go back to doing by judgement; one user's account suggests that for them the difference was between meeting a deadline and missing it. It is a hosted service rather than software a team holds, so access is the dependency. The work has an outside funder, and the builder hopes to extend the tool into Paratext 10.</td></tr>
+      
+      <tr class=""><td class="n">12</td><td class="c">Data Governance & Sovereignty<small class="v">Decisive</small></td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed, contested</span></td><td class="g"><span class="tag builder">Builder claim</span></td><td class="b">There are published terms of service, presented on first sign-in and available afterwards on the Help page. The builder says storage and computing run on external services reachable only by the AQuA development team, and that some parts of the tool send translation text to a third-party service which has promised not to use it for training — with a warning shown on screen before a user reaches those parts. That warning is a good practice worth naming: it puts the choice in front of the person at the moment it matters. Uploaded data is kept indefinitely unless a user asks for it to be deleted. And the third party is not named because it changes: the team moves between providers as models improve, using only companies that undertake not to train on the data. Both answers are worth weighing rather than dismissing — indefinite retention is a real commitment for an organisation to accept, and a deliberately rotating provider is a reasonable engineering choice that nonetheless means a team cannot know today where its text will be processed tomorrow. Where processing happens geographically is still not stated. Would change it: where processing happens geographically, and whether indefinite retention can be opted out of</td></tr>
+      
+      <tr class=""><td class="n">13</td><td class="c">Explainability & Human Steering</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">The builder is explicit, in writing, that AQuA's output is descriptive rather than a judgement: it reports properties of the text and leaves the user to decide whether they indicate a problem, it can be wrong, not every outlier is an error, and investigating outliers alone will not find every problem. One user confirms this from practice in both directions. He describes false positives — a word flagged as having no equivalent where the translation was fine — and says the fix is to read word correspondence alongside semantic similarity rather than either alone. He also found a false negative: a missing connective that the table did not highlight. No figure for how often a flag is a false alarm has been published, and on this evidence none may exist. Would change it: any measure of how often a flag is a false alarm</td></tr>
+      
+      <tr class=""><td class="n">14</td><td class="c">Cultural & Safety Alignment</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">AQuA compares a draft against a reference translation, so the reference carries someone's exegetical and stylistic decisions and a deliberate departure can surface as a difference. The builder says so openly, giving intentional paraphrase as the example. In India the comparison translations most used are Hindi and Malayalam. One user working in Tagalog and Cebuano compares against English and against Tagalog, because he does not read Greek, which means the reference is a translation of a translation — and he reports the tool distinguishing real errors from differences of expression well enough to be useful. Another user reports it tracking the consistency of biblical terms across a text, with every rendering listed. A manager at Biblica, in a testimonial the builder published, describes comparing a project against many reference texts as a filter that helps him concentrate on what matters — which is the same mechanism working in the team's favour rather than against it.</td></tr>
+      
+    </tbody>
+  </table>
+
+  <div class="bottom">
+    <div>
+      <h3>Still open</h3>
+      <ul><li>Where uploaded drafts are processed geographically. The builder has answered retention — data is kept indefinitely unless deletion is requested — and explained that the third-party service is deliberately not fixed, but the countries involved are still not stated.</li><li>Whether the Biblica team is still using AQuA. Their testimonial is dated July 2024, and nothing we hold is more recent.</li><li>Anyone who tried AQuA and stopped. Both users we heard from were introduced by the builder, and we reached nobody independently.</li><li>How often a flag turns out not to be a real problem. No figure is published, and the builder's own framing suggests none has been measured.</li><li>How many of the 56 recent users are in South Asia, and how many projects they represent.</li><li>Whether the planned Paratext 10 extension changes how findings travel back into a team's own work.</li><li>What the “starter questions” mentioned in one testimonial actually do. Back-translation assessment, also mentioned there, the builder has since explained.</li></ul>
+      <div class="box"><b>Builder's note.</b> The builder has reviewed this page, and their factual corrections have been applied.</div>
+    </div>
+    <div>
+      <h3>Where to find it</h3>
+      <p><a href="https://ai.sil.org/projects/AQuA">ai.sil.org/projects/AQuA</a> · open to anyone working in Bible translation; sign up through the form linked there · terms of service are shown on first sign-in and remain on the Help page.</p>
+      <h3 style="margin-top:8px">The user it assumes</h3>
+      <p>A checker or consultant with reliable internet and a draft they are willing to upload to a website; a reference translation worth comparing against, which in India is usually Hindi or Malayalam; enough English to read the interface; someone able to interpret a heat map and decide what it means, which both users and the builder agree is a real requirement; and a workflow that accepts copying findings out by hand.</p>
+      <h3 style="margin-top:8px">How to read this</h3>
+      <p>A score is chosen by reading the four descriptions in the appendix and picking the one that fits the evidence. <b style="color:var(--ink-2)">AI-proposed</b> means a draft score, prepared from the evidence on file and still to be reviewed by two people. <b style="color:var(--veto)">Contested</b> means the evidence points both ways, or the rubric's own wording does not settle the case — the reasoning beside it is worth reading. Figures the builder gave us are labelled as theirs. Scores are never added together or averaged.</p>
+    </div>
+  </div>
+
+  <div class="aiuse"><b>How this page was put together.</b> Findings were gathered by the evaluation team by reading the published documentation, putting questions to the builder, and reading written feedback from two users the builder introduced. The scores are drafts prepared with AI assistance from that evidence and are still to be reviewed by two people.</div>
+
+  <div class="spacer"></div>
+  <div class="foot"><span>Snapshot 29 September 2026 · Evidence gathered 23–29 September 2026</span><span>Evaluation framework v1 · Emerging Tech Summit 2026</span></div>
+</section>
+
+
+<!-- ====================================================== APPENDIX -->
+
+
+
+<section class="page">
+  <div class="run"><span><b>ETS 2026</b> · Tool evaluation</span><span>Appendix: the rubric (1 of 2)</span></div>
+  
+  <h2 style="font-size:17pt">Appendix: the full rubric</h2>
+  <p class="cover-sub" style="font-size:8.8pt">The wording every score is measured against. A score is chosen by reading these four descriptions and picking the one that fits what the evidence shows — not by impression, and not on a curve. <span style="color:var(--veto);font-weight:600">&#9679;</span> decisive criterion · <span style="color:var(--user);font-weight:600">&#9679;</span> needs real users (Tier 1 only).</p>
+  
+  <table class="matrix">
+    <thead><tr><th class="c">Criterion</th><th>1 — Unsatisfactory</th><th>2 — Developing</th><th>3 — Proficient</th><th>4 — Exemplary</th></tr></thead>
+    <tbody>
+    
+      <tr><td class="c"><span class="num">1</span>Problem Alignment<small>What problem does it solve?</small><small class="v">&#9679; decisive</small></td><td>Solves an ill-defined or non-existent problem; no alignment with target audience needs.</td><td>Addresses a minor issue, but core pain points remain unresolved.</td><td>Solves a clear, well-defined problem relevant to field translation teams.</td><td>Solves a high-priority, critical problem with significant, measurable impact.</td></tr>
+    
+      <tr><td class="c"><span class="num">2</span>Setup Complexity<small>How easy is it to set up?</small></td><td>Extremely complex; requires specialized technical skills, custom code, or extensive workarounds.</td><td>Difficult setup; requires moderate technical support or multi-step configuration.</td><td>Straightforward setup; standard user can complete configuration with documentation.</td><td>Turnkey, plug-and-play setup; minimal to no technical intervention required.</td></tr>
+    
+      <tr><td class="c"><span class="num">3</span>Workflow Integration<small>Can this tool be easily integrated into the workflow?</small></td><td>Incompatible; disrupts existing workflows and creates significant friction or duplicate work.</td><td>Integrates with difficulty; requires manual data re-entry or awkward workarounds.</td><td>Integrates smoothly into standard field tools and processes with minimal friction.</td><td>Seamless native integration; fully automated data flow between tools and platforms.</td></tr>
+    
+      <tr><td class="c"><span class="num">4</span>User Reach & Adoption<small>How many people are using it, and who are they?</small><small class="t">&#9679; needs real users</small></td><td>No reachable active users; purely theoretical or tested only in demo settings.</td><td>Very few active users (1–5); restricted to a single closed group.</td><td>Moderate active user base across target user roles.</td><td>Large, established active user base across multiple field teams and roles.</td></tr>
+    
+      <tr><td class="c"><span class="num">5</span>Ease of Use & Learning Curve<small>How intuitive is the tool to use daily?</small></td><td>Unintuitive interface; steep learning curve requiring extensive ongoing training or technical intervention.</td><td>Somewhat complex interface; requires moderate user training and frequent reliance on support manuals.</td><td>User-friendly and intuitive for everyday translation work; minimal training required for field teams.</td><td>Highly intuitive and accessible; seamless navigation with virtually no learning curve for non-technical users.</td></tr>
+    
+      <tr><td class="c"><span class="num">6</span>Project Implementation<small>How many projects have implemented this tool?</small><small class="t">&#9679; needs real users</small></td><td>0 real-world projects implemented.</td><td>1 active pilot project.</td><td>2–4 active field projects currently using the tool.</td><td>5+ real-world translation projects actively relying on the tool.</td></tr>
+    
+      <tr><td class="c"><span class="num">7</span>Implementation Horizon<small>What can be implemented now, and what is promised later?</small></td><td>Unclear immediate utility and no long-term roadmap.</td><td>Limited current functionality; long-term roadmap exists but lacks timeline or feasibility.</td><td>Core features ready for immediate deploy; clear long-term feature roadmap in place.</td><td>Fully functional immediate capabilities paired with a realistic, high-value long-term plan.</td></tr>
+    
+    </tbody>
+  </table>
+  <div class="spacer"></div>
+  <div class="foot"><span>Snapshot of 1 October 2026</span><span>Evaluation framework v1 · Emerging Tech Summit 2026</span></div>
+</section>
+
+<section class="page">
+  <div class="run"><span><b>ETS 2026</b> · Tool evaluation</span><span>Appendix: the rubric (2 of 2)</span></div>
+  
+  <table class="matrix">
+    <thead><tr><th class="c">Criterion</th><th>1 — Unsatisfactory</th><th>2 — Developing</th><th>3 — Proficient</th><th>4 — Exemplary</th></tr></thead>
+    <tbody>
+    
+      <tr><td class="c"><span class="num">8</span>Workflow Stage Fit<small>Where in its domain's workflow does the tool fit, and how much of that workflow does it cover?</small></td><td>Cannot be placed at any recognised stage of its declared domain's workflow, or the fit is so narrow or ill-defined that a team could not say when in their process to use it.</td><td>Usable at a single stage, but with significant constraints or gaps; the stage's core task is only partly addressed.</td><td>Fully functional at one or more core stages of its domain's workflow, with a clear hand-off into and out of the tool.</td><td>Covers multiple stages of its domain's workflow with continuity between them — outputs of one stage feed the next without re-entry.</td></tr>
+    
+      <tr><td class="c"><span class="num">9</span>Post-Implementation Support<small>What support is available after a team adopts it?</small><small class="t">&#9679; needs real users</small></td><td>No post-launch support, contact points, or documentation available.</td><td>Minimal support; limited to unmaintained community forums or slow response times.</td><td>Reliable support available via direct contact channels with clear user documentation.</td><td>Comprehensive support including direct helpdesk, ongoing training, and regular updates.</td></tr>
+    
+      <tr><td class="c"><span class="num">10</span>Retention & Sustained Impact<small>What difference is it making on the ground, over time?</small><small class="t">&#9679; needs real users</small></td><td>Tool is abandoned shortly after launch; zero sustained adoption or measurable impact on ground operations.</td><td>High drop-off rate after initial trial; minimal lasting change in team productivity or workflows over 6 months.</td><td>Consistent usage sustained after 6+ months; clear, positive shift in field team efficiency or output quality.</td><td>Entrenched as an essential tool with near-total user retention; measurable, long-term transformational impact on ground work.</td></tr>
+    
+      <tr><td class="c"><span class="num">11</span>Cost & Financial Sustainability<small>Is the pricing model viable and sustainable long-term?</small><small class="v">&#9679; decisive</small></td><td>Cost-prohibitive or opaque pricing; reliant on unsustainable short-term subsidies with high financial risk.</td><td>High operational or licensing costs; partially sustainable but creates budget strain over time.</td><td>Predictable, fair pricing structure supported by a clear, long-term financial plan.</td><td>Free or open-access, or highly cost-effective; backed by a fully sustainable funding and maintenance model.</td></tr>
+    
+      <tr><td class="c"><span class="num">12</span>Data Governance & Sovereignty<small>How are data ownership, privacy, and security handled?</small><small class="v">&#9679; decisive</small></td><td>No data privacy controls; vendor retains unrestricted ownership or rights over sensitive translation content.</td><td>Basic security measures, but vague data retention, export, and regional privacy compliance policies.</td><td>Clear data ownership rights retained by the translation team, with standard privacy and export protocols.</td><td>Complete data sovereignty guaranteed; robust encryption, strict privacy safeguards, and full local data control.</td></tr>
+    
+      <tr><td class="c"><span class="num">13</span>Explainability & Human Steering<small>Can users understand and control why the AI gives an answer?</small></td><td>Opaque “black box” system; no rationale provided for outputs, and users cannot adjust, override, or guide model decision-making.</td><td>Minimal rationale or source tracking; limited ability to tweak prompt settings or influence underlying output logic.</td><td>Clear output explanations or source references provided; users can easily adjust steering parameters and override AI outputs.</td><td>Fully transparent logic, traceable citations, and granular human controls to tune, override, and direct AI decision-making at every stage.</td></tr>
+    
+      <tr><td class="c"><span class="num">14</span>Cultural & Safety Alignment<small>Are outputs culturally accurate, ethically aligned, and free of regional bias?</small></td><td>Outputs display significant regional bias, offensive or harmful content, or complete disregard for local cultural context.</td><td>Inconsistent safety controls; occasional cultural inaccuracies, subtle regional biases, or weak ethical boundary safeguards.</td><td>Generally reliable safety and ethical boundaries; culturally appropriate outputs with minimal regional bias.</td><td>Rigorously calibrated for localized ethics, nuance, and safety; zero regional bias with complete context awareness and customization.</td></tr>
+    
+    </tbody>
+  </table>
+  <div class="spacer"></div>
+  <div class="foot"><span>Snapshot of 1 October 2026</span><span>Evaluation framework v1 · Emerging Tech Summit 2026</span></div>
+</section>
+
+
+</body>
+</html>

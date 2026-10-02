@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ETS 2026 Tool Evaluations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --paper: #fff; --ink: #1a242e; --ink-2: #4a5663; --ink-3: #7a8591;
+    --rule: #cfd5db; --rule-2: #e6eaee; --panel: #f3f5f7;
+    --user: #1f6b4b; --user-bg: #dff0e7;
+    --builder: #915f0a; --builder-bg: #f7e9cc;
+    --doc: #274f8f; --doc-bg: #dfe8f7;
+    --pending: #7f8a95; --pending-bg: #eceff2;
+    --test: #6b3fa0; --test-bg: #ebe3f5;
+    --facil: #3a7d6e; --facil-bg: #dcefe9;
+    --veto: #a1372c;
+    --serif: "Literata", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: #d9dde2; font-family: var(--sans); color: var(--ink); font-size: 9.6pt; line-height: 1.42; padding: 24px 0 48px; }
+  .page { width: 210mm; min-height: 297mm; background: var(--paper); margin: 0 auto 22px; padding: 14mm 16mm 13mm; position: relative; box-shadow: 0 2px 18px rgba(0,0,0,.14); display: flex; flex-direction: column; }
+  @page { size: A4; margin: 0; }
+  @media print {
+    body { background: none; padding: 0; }
+    .page { box-shadow: none; margin: 0; break-after: page; }
+  }
+  h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; margin: 0; line-height: 1.15; letter-spacing: -0.005em; }
+  p { margin: 0; }
+  .run { display: flex; justify-content: space-between; font-size: 8pt; color: var(--ink-3); padding-bottom: 6px; border-bottom: 1px solid var(--rule); margin-bottom: 9mm; }
+  .run b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---- page 1 ---- */
+  .titlerow { display: flex; align-items: flex-start; gap: 7mm; }
+  .titlerow .logo { flex: 0 0 auto; width: 19mm; height: 19mm; border: 1px solid var(--rule); display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff; }
+  .titlerow .logo img { max-width: 100%; max-height: 100%; }
+  .titlerow .logo .mono { font-family: var(--serif); font-size: 19pt; font-weight: 600; color: var(--ink-3); letter-spacing: -0.02em; }
+  .title h1 { font-size: 26pt; }
+  .title .sub { margin-top: 5px; font-size: 9.5pt; color: var(--ink-2); }
+  .title .sub span + span::before { content: "·"; color: var(--ink-3); margin: 0 7px; }
+
+  .exsum { margin-top: 7mm; border-left: 2.5px solid var(--ink); padding: 2px 0 2px 12px; }
+  .exsum h3 { font-size: 10.5pt; margin-bottom: 4px; }
+  .exsum p { font-size: 9.3pt; color: var(--ink-2); line-height: 1.5; }
+  .exsum p + p { margin-top: 5px; }
+
+  .facts { margin-top: 7mm; display: grid; grid-template-columns: 1fr 1fr; gap: 5mm 8mm; }
+  .fact dt { font-size: 7.6pt; color: var(--ink-3); margin-bottom: 2px; letter-spacing: .01em; }
+  .fact dd { margin: 0; font-size: 9.4pt; }
+  .fact dd small { display: block; color: var(--ink-2); font-size: 8.4pt; margin-top: 2px; }
+
+  .fpblock { margin-top: 7mm; padding-top: 5mm; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 1fr 58mm; gap: 8mm; align-items: start; }
+  .fpblock h3 { font-size: 11pt; margin-bottom: 2px; }
+  .fpblock .lead { font-size: 8.6pt; color: var(--ink-2); margin-bottom: 9px; }
+  .fp { display: grid; grid-template-columns: repeat(14, 1fr); gap: 5px; align-items: end; height: 34mm; padding-bottom: 4px; border-bottom: 1.4px solid var(--ink); }
+  .fp i { display: block; height: 30mm; border: 1.3px dashed var(--pending); border-radius: 2px 2px 0 0; background: linear-gradient(to top, var(--fill) 0 var(--h), transparent var(--h)); }
+  .fp i.user { --fill: var(--user); border-style: solid; border-color: var(--user); }
+  .fp i.doc  { --fill: var(--doc);  border-style: solid; border-color: var(--doc); }
+  .fp i.builder { --fill: var(--builder); border-style: solid; border-color: var(--builder); }
+  .fp i.test { --fill: var(--test); border-style: solid; border-color: var(--test); }
+  .fp i.facil { --fill: var(--facil); border-style: solid; border-color: var(--facil); }
+  .fp i.ai { border-style: dashed; }
+  .fp i.na { --h: 0%; border-style: dotted; border-color: var(--rule); }
+  .fp i.s4 { --h: 100%; } .fp i.s3 { --h: 75%; } .fp i.s2 { --h: 50%; } .fp i.s1 { --h: 25%; } .fp i.pend { --h: 0%; }
+  .fpn { display: grid; grid-template-columns: repeat(14, 1fr); gap: 5px; margin-top: 4px; text-align: center; font-family: var(--serif); font-size: 7.6pt; color: var(--ink-3); }
+  .fpn .v { color: var(--veto); font-weight: 600; }
+  .fpn .na { color: var(--rule); }
+  .weight { background: var(--panel); padding: 10px 12px 11px; font-size: 8.6pt; }
+  .weight h4 { font-size: 9.6pt; margin-bottom: 6px; }
+  .weight .row { display: flex; justify-content: space-between; padding: 4px 0; border-top: 1px solid var(--rule-2); }
+  .weight .row:first-of-type { border-top: 0; }
+  .weight .row b { font-family: var(--serif); font-size: 12pt; font-weight: 600; }
+  .weight .note { margin-top: 8px; color: var(--ink-2); font-size: 7.9pt; line-height: 1.4; }
+
+  .tag { display: inline-block; font-size: 7.3pt; font-weight: 500; line-height: 1; padding: 4px 6px; border-radius: 2px; white-space: nowrap; }
+  .tag.user { color: var(--user); background: var(--user-bg); }
+  .tag.builder { color: var(--builder); background: var(--builder-bg); }
+  .tag.doc { color: var(--doc); background: var(--doc-bg); }
+  .tag.pending { color: var(--pending); background: var(--pending-bg); }
+  .tag.test { color: var(--test); background: var(--test-bg); }
+  .tag.facil { color: var(--facil); background: var(--facil-bg); }
+  .tag.ai { color: var(--ink-2); border: 1px dashed var(--ink-3); }
+  .tag.na { color: var(--ink-3); border: 1px solid var(--rule); }
+
+  .two { margin-top: 7mm; display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+  .two h3 { font-size: 11pt; margin-bottom: 5px; }
+  .two p, .two li { font-size: 8.9pt; color: var(--ink-2); }
+  .two ul { margin: 0; padding-left: 14px; }
+  .two li { margin-bottom: 4px; }
+  .two p + p { margin-top: 6px; }
+  .gate b { color: var(--ink); font-weight: 600; }
+
+  .spacer { flex: 1; }
+  .foot { margin-top: 6mm; padding-top: 6px; border-top: 1px solid var(--rule); font-size: 7.4pt; color: var(--ink-3); display: flex; justify-content: space-between; gap: 12px; }
+
+  /* ---- page 2 ---- */
+  .p2 h2 { font-size: 15pt; margin-bottom: 3px; }
+  .p2 .lead { font-size: 8.6pt; color: var(--ink-2); margin-bottom: 9px; }
+  table.prof { width: 100%; border-collapse: collapse; font-size: 8.3pt; }
+  .prof th { text-align: left; font-weight: 600; font-size: 7.6pt; color: var(--ink-2); padding: 0 6px 5px; border-bottom: 1.4px solid var(--ink); }
+  .prof td { padding: 6px 6px 7px; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+  .prof td.n { width: 6mm; font-family: var(--serif); font-size: 10pt; color: var(--ink-3); padding-left: 0; }
+  .prof td.c { width: 33mm; font-weight: 500; font-size: 8.5pt; }
+  .prof td.c small { display: block; font-weight: 500; font-size: 6.9pt; margin-top: 1px; }
+  .prof td.c small.v { color: var(--veto); } .prof td.c small.t { color: var(--user); }
+  .prof td.s { width: 22mm; white-space: nowrap; }
+  .prof td.g { width: 24mm; }
+  .prof td.b { color: var(--ink-2); font-size: 8pt; line-height: 1.38; }
+  .prof tr.pend td.c, .prof tr.pend td.n { color: var(--ink-3); }
+  .tile { display: inline-flex; align-items: center; gap: 6px; }
+  .tile .num { font-family: var(--serif); font-size: 13pt; font-weight: 600; min-width: 9px; text-align: center; line-height: 1; }
+  .segs { display: inline-flex; gap: 2px; }
+  .segs i { display: block; width: 7px; height: 10px; border: 1.2px solid var(--ink); }
+  .segs i.on { background: var(--ink); }
+  .pend .segs i { border-style: dashed; border-color: var(--pending); }
+  .pend .tile .num { color: var(--pending); }
+  .na .segs i { border-style: dotted; border-color: var(--rule); }
+  .na .tile .num { color: var(--ink-3); font-size: 9pt; }
+  .prov { display: block; font-size: 6.6pt; color: var(--ink-3); margin-top: 3px; }
+  .prov.ct { color: var(--veto); }
+  .prov.ai { color: var(--ink-2); font-style: italic; }
+  .prov.final { color: var(--user); }
+  .exsum.flagged { border-left-color: var(--veto); }
+  .aiuse { margin-top: 5mm; font-size: 7.8pt; color: var(--ink-2); border-top: 1px solid var(--rule-2); padding-top: 5px; }
+  .aiuse b { color: var(--ink); }
+
+  .p2 .bottom { margin-top: 6mm; display: grid; grid-template-columns: 1.3fr 1fr; gap: 8mm; }
+  .p2 .bottom h3 { font-size: 10.5pt; margin-bottom: 4px; }
+  .p2 .bottom p, .p2 .bottom li { font-size: 8.5pt; color: var(--ink-2); }
+  .p2 .bottom ul { margin: 0; padding-left: 14px; }
+  .p2 .bottom li { margin-bottom: 3px; }
+  .p2 .bottom .box { border: 1px solid var(--rule); padding: 8px 10px; margin-top: 8px; font-size: 8.3pt; color: var(--ink-2); }
+  .p2 .bottom .box b { color: var(--ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 5px 8px; align-items: center; margin-top: 8px; font-size: 7.6pt; color: var(--ink-2); }
+
+  /* ---- bundle cover ---- */
+  .cover h1 { font-size: 28pt; margin-top: 4mm; }
+  .cover .cover-sub { margin-top: 6px; font-size: 10pt; color: var(--ink-2); max-width: 150mm; }
+  table.toc { width: 100%; border-collapse: collapse; font-size: 8.4pt; margin-top: 9mm; }
+  .toc th { text-align: left; font-weight: 600; font-size: 7.6pt; color: var(--ink-2); padding: 0 6px 5px; border-bottom: 1.4px solid var(--ink); }
+  .toc td { padding: 7px 6px 8px; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+  .toc td.tool { font-weight: 600; font-size: 9.4pt; font-family: var(--serif); }
+  .toc td.tool small { display: block; font-family: var(--sans); font-weight: 400; font-size: 7.6pt; color: var(--ink-3); margin-top: 2px; }
+  .toc td.pg { text-align: right; font-family: var(--serif); color: var(--ink-3); }
+  .toc td.state { font-size: 8pt; color: var(--ink-2); }
+  .cover-two { margin-top: 9mm; display: grid; grid-template-columns: 1.2fr 1fr; gap: 8mm; }
+  .cover-two h3 { font-size: 11pt; margin-bottom: 5px; }
+  .cover-two p { font-size: 8.9pt; color: var(--ink-2); }
+  .cover-two p + p { margin-top: 6px; }
+  .cover-legend { margin: 4px 0 8px; }
+  .cover-two .box { border: 1px solid var(--rule); padding: 8px 10px; margin-top: 10px; font-size: 8.4pt; color: var(--ink-2); }
+
+  /* ---- cover: keys and disclaimer ---- */
+  .keys { margin-top: 8mm; display: grid; grid-template-columns: 1fr 1fr; gap: 7mm 9mm; }
+  .keys h3 { font-size: 11pt; margin-bottom: 5px; }
+  .keys p, .keys li { font-size: 8.7pt; color: var(--ink-2); }
+  .keys p + p { margin-top: 5px; }
+  dl.keylist { margin: 4px 0 0; }
+  dl.keylist > div { display: grid; grid-template-columns: 34mm 1fr; gap: 7px; padding: 4px 0; border-top: 1px solid var(--rule-2); align-items: baseline; }
+  dl.keylist > div:first-child { border-top: 0; }
+  dl.keylist dt { margin: 0; }
+  dl.keylist dd { margin: 0; font-size: 8.5pt; color: var(--ink-2); }
+  dl.keylist dt .lbl { font-weight: 600; color: var(--ink); font-size: 8.6pt; }
+  dl.keylist dt .lbl.ct { color: var(--veto); }
+  dl.keylist dt .lbl.ai { font-style: italic; color: var(--ink-2); font-weight: 500; }
+  .vetolist { margin: 4px 0 0; padding-left: 0; list-style: none; }
+  .vetolist li { font-size: 8.6pt; color: var(--ink-2); padding: 4px 0; border-top: 1px solid var(--rule-2); }
+  .vetolist li:first-child { border-top: 0; }
+  .vetolist b { color: var(--ink); }
+  .disclaimer { margin-top: 7mm; border: 1.4px solid var(--veto); padding: 9px 12px; font-size: 8.6pt; color: var(--ink-2); }
+  .disclaimer b { color: var(--veto); }
+
+  /* ---- cover: criteria list, tier note, appendix ---- */
+  .critlist { margin: 4px 0 0; column-count: 2; column-gap: 8mm; }
+  .critlist div { break-inside: avoid; padding: 3.5px 0; border-top: 1px solid var(--rule-2); font-size: 8.4pt; color: var(--ink-2); }
+  .critlist div:first-child { border-top: 0; }
+  .critlist b { color: var(--ink); font-weight: 600; }
+  .critlist .mark { color: var(--veto); font-weight: 600; }
+  .critlist .mark.t { color: var(--user); }
+  .tiernote { margin-top: 7mm; background: var(--panel); padding: 10px 12px; font-size: 8.7pt; color: var(--ink-2); }
+  .tiernote h3 { font-size: 10.5pt; margin-bottom: 4px; }
+  .tiernote p + p { margin-top: 5px; }
+  .tiernote b { color: var(--ink); }
+  table.matrix { width: 100%; border-collapse: collapse; font-size: 7.2pt; margin-top: 6mm; table-layout: fixed; }
+  .matrix th { text-align: left; font-weight: 600; font-size: 7pt; color: var(--ink-2); padding: 0 5px 5px; border-bottom: 1.4px solid var(--ink); }
+  .matrix th.c { width: 30mm; }
+  .matrix td { padding: 6px 5px 7px; border-bottom: 1px solid var(--rule-2); vertical-align: top; color: var(--ink-2); line-height: 1.32; }
+  .matrix td.c { color: var(--ink); font-weight: 600; font-size: 8pt; }
+  .matrix td.c small { display: block; font-weight: 400; font-size: 6.8pt; color: var(--ink-2); margin-top: 2px; font-style: italic; }
+  .matrix td.c small.v { color: var(--veto); font-style: normal; }
+  .matrix td.c small.t { color: var(--user); font-style: normal; }
+  .matrix td.c .num { font-family: var(--serif); color: var(--ink-3); margin-right: 3px; }
+
+  /* ---- participant-facing summary blocks ---- */
+  .sub a, .where a, .fact a, .cat a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule); }
+  .statline { display: flex; flex-wrap: wrap; gap: 3mm 5mm; margin-top: 5px; }
+  .statline .st { border: 1px solid var(--rule-2); padding: 4px 7px 5px; min-width: 17mm; }
+  .statline .st b { display: block; font-family: var(--serif); font-size: 12pt; font-weight: 600; line-height: 1; }
+  .statline .st span { display: block; font-size: 6.9pt; color: var(--ink-3); margin-top: 3px; line-height: 1.25; }
+  .kpis { margin-top: 6mm; }
+  .kpis h3 { font-size: 10.5pt; margin-bottom: 2px; }
+  .kpis .lead { font-size: 8.2pt; color: var(--ink-2); margin-bottom: 6px; }
+  .kpigrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .kpi { border: 1px solid var(--rule); border-top: 2.5px solid var(--builder); padding: 8px 10px 9px; }
+  .kpi .tagline { font-size: 6.6pt; color: var(--builder); font-weight: 600; letter-spacing: .03em; text-transform: uppercase; }
+  .kpi .val { font-family: var(--serif); font-size: 17pt; font-weight: 600; line-height: 1.05; margin-top: 3px; }
+  .kpi .lab { font-size: 8pt; color: var(--ink); margin-top: 2px; }
+  .kpi .note { font-size: 7.2pt; color: var(--ink-2); margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--rule-2); line-height: 1.35; }
+  .kpi.none { border-top-color: var(--pending); }
+  .kpi.none .tagline { color: var(--pending); }
+
+  /* ---- catalogue ---- */
+  table.cat { width:100%; border-collapse:collapse; font-size:8.2pt; margin-top:6mm; }
+  .cat th { text-align:left; font-weight:600; font-size:7.2pt; color:var(--ink-2); padding:0 6px 5px; border-bottom:1.4px solid var(--ink); }
+  .cat td { padding:6px 6px 7px; border-bottom:1px solid var(--rule-2); vertical-align:top; color:var(--ink-2); line-height:1.35; }
+  .cat td.nm { color:var(--ink); font-weight:600; font-family:var(--serif); font-size:9pt; width:34mm; }
+  .cat td.nm small { display:block; font-family:var(--sans); font-weight:400; font-size:7pt; color:var(--ink-3); margin-top:2px; }
+  .cat td.nm small.px { color:var(--ink-2); font-style:italic; margin-top:3px; padding-top:3px; border-top:1px solid var(--rule-2); }
+  .cat td.dm { width:30mm; }
+  .cat td.wh { width:34mm; font-size:7.4pt; }
+  .cat tr.group td { background:var(--panel); font-weight:600; color:var(--ink); font-family:var(--serif); font-size:8.6pt; padding:7px 6px; }
+
+</style>
+</head>
+<body>
+
+
+
+<!-- ====================================================== HOW TO READ -->
+<section class="page cover">
+  <div class="run"><span><b>ETS 2026</b> · Tool evaluation</span><span>How to read this</span></div>
+  <h2 style="font-size:17pt">How to read this</h2>
+  <p class="cover-sub" style="font-size:9pt">Each tool has two pages. The <b>Summary page</b> gives the short version: what the tool is, who has told us what, and where the evidence stands. The <b>Findings &amp; Evidence</b> page sets out all fourteen criteria, the score each has been given so far, and what that score rests on. Read the basis column rather than the number: the number is shorthand, the basis is the finding.</p>
+
+  <div class="keys">
+    <div>
+      <h3>Where a score comes from</h3>
+      <p>Every criterion is scored 1 to 4 against wording agreed in advance, so that a 3 means the same thing for every tool. Scores are never added up or averaged, and there is no overall mark. A tool that scores 2 on something your organisation does not care about may still be the right tool for you.</p>
+      <dl class="keylist">
+        <div><dt><span class="lbl ">agreed</span></dt><dd>Reviewers scored it independently, then compared scores and agreed the result on the record. Where they had differed, they settled it by discussion, not by averaging or a vote. None appear in this edition yet.</dd></div><div><dt><span class="lbl ">provisional</span></dt><dd>Every reviewer who scored it gave the same number, but they have not yet discussed it. None appear in this edition yet.</dd></div><div><dt><span class="lbl ct">reviewers differ</span></dt><dd>Reviewers scored it independently and landed on different numbers. Every score given is shown; the bar on the chart shows the lowest. None appear in this edition yet.</dd></div><div><dt><span class="lbl ai">AI-proposed</span></dt><dd>A draft score with its reasoning, prepared with AI assistance from the evidence we gathered. It is not a human judgement.</dd></div><div><dt><span class="lbl ct">contested</span></dt><dd>The evidence splits, or our own wording does not settle the case. Worth reading the basis.</dd></div>
+      </dl>
+    </div>
+    <div>
+      <h3>Where the evidence comes from</h3>
+      <p>Every score carries a tag saying what it rests on. The tags are not interchangeable: what a translator reports from a live project counts for more than what a product page says, and both are printed so you can weigh them yourself.</p>
+      <dl class="keylist">
+        <div><dt><span class="tag user">User-reported</span></dt><dd>A translator or team using the tool in a live project told us directly, through a survey or an interview we ran.</dd></div><div><dt><span class="tag facil">Facilitator-reported</span></dt><dd>A facilitator, coordinator or support worker told us about the teams they serve. Close to the work, but second-hand.</dd></div><div><dt><span class="tag test">Our testing</span></dt><dd>We used the tool ourselves against a fixed set of questions and recorded what happened.</dd></div><div><dt><span class="tag doc">Documentation</span></dt><dd>A published page, release note, policy or repository, with the date we read it.</dd></div><div><dt><span class="tag builder">Builder claim</span></dt><dd>The people who make the tool told us. Printed as theirs, not as established fact.</dd></div><div><dt><span class="tag pending">Pending</span></dt><dd>Asked for but not yet in hand. The page says what was requested and when.</dd></div><div><dt><span class="tag na">N/A</span></dt><dd>The criterion does not apply — for example, explainability for a tool with no AI in it.</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="keys" style="grid-template-columns: 1fr;">
+    <div>
+      <h3>The three criteria we treat as decisive</h3>
+      <p>Eleven of the fourteen criteria describe how well a tool does something. Three describe whether it is safe to rely on at all, and a score of 1 on any of them is worth more of your attention than a handful of 2s elsewhere. They are marked in red on the Findings &amp; Evidence page. Nothing here removes a tool from anyone's list — that decision belongs to your organisation — but these are the three we would want answered before committing a project to a tool.</p>
+      <ul class="vetolist">
+        <li><b>1. Problem Alignment</b> — whether the tool solves a problem translation teams actually have. A tool that is impressive but answers a question nobody asked will not survive contact with a project, however well it scores elsewhere.</li><li><b>11. Cost & Financial Sustainability</b> — whether a team can still afford it in three years. Adoption is not a purchase but a dependency: a tool whose funding quietly ends leaves a project stranded mid-book.</li><li><b>12. Data Governance & Sovereignty</b> — who holds the translation text, on what terms, and who else can see it. Unpublished Scripture is a community's own work and sometimes a safety matter, and unlike the other criteria a mistake here cannot be undone later.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tiernote" style="margin-top:7mm">
+    <h3>The two questions we ask before a tool goes on this list</h3>
+    <p><b>Can we assess it?</b> That is: is it in scope, and can we find out enough about it? A tool qualifies if it serves Bible translation or related ministry and if we can gather enough information to answer the fourteen questions — from the people using it where they exist, and otherwise from documentation, from the people who built it and from our own use. A tool we cannot find out enough about is named in the wider catalogue and marked as not assessed, rather than being scored on guesswork.</p>
+    <p><b>Is it worth your time here?</b> That is: among the tools we could assess, we gave priority to those that address a problem organisations in this room actually have, that more than one team has used, or that stand for a choice many of you are weighing this year. This is a decision about what fits a short session, not a ranking, and a tool being absent says nothing against it.</p>
+  </div>
+
+  <div class="keys" style="grid-template-columns: 1fr;">
+    <div>
+      <h3>The fourteen criteria</h3>
+      <p>Every tool is asked the same fourteen questions. <span class="mark" style="color:var(--veto);font-weight:600">&#9679;</span> marks the three we treat as decisive; <span style="color:var(--user);font-weight:600">&#9679;</span> marks the four that need real users before they can be answered. The full wording for each score, 1 to 4, is in the appendix at the back.</p>
+      <div class="critlist">
+        <div><b>1. Problem Alignment</b> <span class="mark">&#9679;</span> — What problem does it solve?</div><div><b>2. Setup Complexity</b> — How easy is it to set up?</div><div><b>3. Workflow Integration</b> — Can this tool be easily integrated into the workflow?</div><div><b>4. User Reach & Adoption</b> <span class="mark t">&#9679;</span> — How many people are using it, and who are they?</div><div><b>5. Ease of Use & Learning Curve</b> — How intuitive is the tool to use daily?</div><div><b>6. Project Implementation</b> <span class="mark t">&#9679;</span> — How many projects have implemented this tool?</div><div><b>7. Implementation Horizon</b> — What can be implemented now, and what is promised later?</div><div><b>8. Workflow Stage Fit</b> — Where in its domain's workflow does the tool fit, and how much of that workflow does it cover?</div><div><b>9. Post-Implementation Support</b> <span class="mark t">&#9679;</span> — What support is available after a team adopts it?</div><div><b>10. Retention & Sustained Impact</b> <span class="mark t">&#9679;</span> — What difference is it making on the ground, over time?</div><div><b>11. Cost & Financial Sustainability</b> <span class="mark">&#9679;</span> — Is the pricing model viable and sustainable long-term?</div><div><b>12. Data Governance & Sovereignty</b> <span class="mark">&#9679;</span> — How are data ownership, privacy, and security handled?</div><div><b>13. Explainability & Human Steering</b> — Can users understand and control why the AI gives an answer?</div><div><b>14. Cultural & Safety Alignment</b> — Are outputs culturally accurate, ethically aligned, and free of regional bias?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tiernote">
+    <h3>Why some pages leave four criteria unscored</h3>
+    <p>Four of the fourteen can only be answered by people using the tool in real work: <b>4 User Reach &amp; Adoption</b>, <b>6 Project Implementation</b>, <b>9 Post-Implementation Support</b> and <b>10 Retention &amp; Sustained Impact</b>. Where we could reach such users, a tool is assessed against all fourteen — what we call <b>Tier 1</b>. Where we could not, it is assessed against the other ten only, which we call <b>Tier 2</b>, and those four are left deliberately unscored rather than guessed at.</p>
+    <p>A Tier 2 page is not a worse tool or a lesser assessment. It usually means the tool is new, or that its users were beyond our reach in the time we had. Newer tools cannot show a user base until someone adopts them, so treating the absence of one as a mark against a tool would make it impossible for any new tool to be adopted at all. Where a tool is at Tier 2, the page says what we would need in order to answer the remaining four.</p>
+  </div>
+
+  <div class="disclaimer"><b>Please read this before using the scores.</b> Every score in this document is a draft prepared with AI assistance from the evidence we gathered, and is marked as one. A draft score is not a human judgement. This tool has not yet been scored by our team. The evidence behind every score — the surveys, interviews, correspondence with builders, trial records and our own testing — is the work of our team, and each page says where every finding came from. Please treat the numbers as a starting point for your own judgement, not as settled findings.</div>
+
+  <div class="spacer"></div>
+  <div class="foot"><span>Snapshot of 1 October 2026</span><span>Evaluation framework v1 · Emerging Tech Summit 2026</span></div>
+</section>
+
+
+<!-- ====================================================== PAGE 1 -->
+<section class="page">
+  <div class="run"><span><b>ETS 2026</b> · Tool evaluation · Translation, written</span><span>Faithbridge · Summary page (1 of 2)</span></div>
+
+  <div class="titlerow">
+    <div class="logo"><span class="mono">F</span></div>
+    <div class="title">
+      <h1>Faithbridge</h1>
+      <div class="sub"><span>SIL Global, AI Capability Team</span><span><a href="https://faithbridge.multilingualai.com">faithbridge.multilingualai.com</a></span><span>Free, open sign-up</span><span>Web and WhatsApp; typing or speaking</span><span>Uses AI to answer questions</span></div>
+    </div>
+  </div>
+
+  <div class="exsum ">
+    <h3>Executive summary</h3>
+    <p>Faithbridge answers a translator's questions about a passage by searching a curated set of Bible translation resources and summarising what they say, with links to the sources it used. It works in a browser or through WhatsApp, by typing or speaking, and it can re-express a verse in plainer language.</p><p>This assessment draws on written responses from three users at three organisations gathered on 23 September 2026; our own recorded use of the tool; its published description and privacy policy; and a detailed reply from the builder on 24 September.</p><p>The builder reports 636 accounts active in the past ninety days across 46 languages, and says the tool now runs inside two other products in production. Everyone we reached, by contrast, is an exegete or consultant asking on behalf of a team rather than a mother-tongue translator, which is the person the tool appears designed for. The tool shows its sources clearly, and the builder has named the AI services it uses and their commitment not to train on the data.</p><p>On sustainability, the builder's own figures put the running cost at about one US cent per message — of the order of a hundred dollars a month — and he expects to keep the service going whether or not it receives additional funding, as he has for two years. The exposure is not that the tool is expensive, but that nothing commits anyone to keeping it running.</p>
+  </div>
+
+  <dl class="facts">
+    <div class="fact"><dt>What it is for, and where it fits</dt><dd>Written translation: understanding a passage before and while drafting<small>Its plain-language re-expression of a verse reaches into drafting itself. No project text goes into the tool by design, though one user has pasted drafts in</small></dd></div>
+    <div class="fact"><dt>How much evidence this rests on</dt><dd>Three users, three organisations, our own testing, and the builder's figures<div class="statline"><div class="st"><b>3</b><span>people replied</span></div><div class="st"><b>3</b><span>organisations</span></div><div class="st"><b>636</b><span>active users, per the builder</span></div><div class="st"><b>46</b><span>languages, per the builder</span></div><div class="st"><b>2</b><span>agreed to a call</span></div></div><small>Responses gathered on 23 September 2026. Because the tool can be used over WhatsApp without an account, there may be users no list would show</small></dd></div>
+    <div class="fact"><dt>Our connections to this tool</dt><dd>Built by SIL Global. A member of our evaluation team provides user support for Faithbridge; she helped us understand how it is used but took no part in scoring it, and the two people who will score it have no connection to SIL. We invited users directly rather than through the support channel.</dd></div>
+    <div class="fact"><dt>Who built it</dt><dd>Built by SIL Global's AI Capability Team. The figures on this page are the builder's own.<small>Not known: how long server logs are kept, where processing happens, and who supports users day to day.</small></dd></div>
+  </dl>
+
+  
+  <div class="kpis">
+    <h3>Figures the builder gave us</h3>
+    <p class="lead">Supplied by the people who make the tool. We print them as given and have not verified them independently.</p>
+    <div class="kpigrid">
+      <div class="kpi "><div class="tagline">Builder-reported</div><div class="val">636</div><div class="lab">accounts active in the past 90 days</div><div class="note">The builder's figure, over the past ninety days. We reached three users ourselves and no separate figure for India was given.</div></div><div class="kpi "><div class="tagline">Builder-reported</div><div class="val">46</div><div class="lab">languages used in that period</div><div class="note">Most used: English, Spanish, Indonesian, French, Swahili, Tamil, Nepali, Portuguese, Hindi, Thai.</div></div><div class="kpi "><div class="tagline">Builder-reported</div><div class="val">~1¢</div><div class="lab">cost per message, borne by the builder</div><div class="note">Roughly $100 a month at current use. The builder expects to keep the service running on that basis, as he has for two years.</div></div>
+    </div>
+  </div>
+  
+
+  <div class="fpblock">
+    <div>
+      <h3>All fourteen questions at a glance</h3>
+      <p class="lead">One bar per question, numbered to match the rows overleaf. The taller the bar, the higher the score out of four; the colour shows what kind of evidence that score rests on. Outlined bars are questions we have not been able to answer yet. Hatched bars are draft scores still to be reviewed.</p>
+      <div class="fp" role="img" aria-label="Scores by criterion">
+        <i class="user s2 ai"></i><i class="user s3 ai"></i><i class="test s3 ai"></i><i class="user s4 ai"></i><i class="user s3 ai"></i><i class="user s2 ai"></i><i class="doc s3 ai"></i><i class="doc s3 ai"></i><i class="user s3 ai"></i><i class="user s2 ai"></i><i class="builder s3 ai"></i><i class="doc s3 ai"></i><i class="test s3 ai"></i><i class="pend"></i>
+      </div>
+      <div class="fpn"><span class="v">1</span><span class="">2</span><span class="">3</span><span class="">4</span><span class="">5</span><span class="">6</span><span class="">7</span><span class="">8</span><span class="">9</span><span class="">10</span><span class="v">11</span><span class="v">12</span><span class="">13</span><span class="">14</span></div>
+      <div class="legend"><span class="tag user">User-reported</span><span class="tag test">Our testing</span><span class="tag doc">Documentation</span><span class="tag builder">Builder claim</span><span class="tag pending">Pending</span><span class="tag ai">AI-proposed</span><span style="color:var(--veto)">Red numbers: veto criteria</span></div>
+    </div>
+    <div class="weight">
+      <h4>Where the evidence came from</h4>
+      <div class="row"><span>User-reported</span><b>7</b></div><div class="row"><span>Our testing</span><b>2</b></div><div class="row"><span>Documentation</span><b>3</b></div><div class="row"><span>Builder claim</span><b>1</b></div><div class="row"><span>Pending</span><b>1</b></div>
+      <p class="note"></p>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="gate">
+      <h3>Before scoring</h3>
+      <p><b>Can we assess it? Yes.</b> In scope; assessable from documentation, our own use and a builder pack. Three named users heard from, so Tier 1.</p>
+      <p><b>Is it worth your time here? Yes.</b> "Ask your resources" is the AI pitch every organisation in the room is hearing this year; this one is free and SIL-backed; and the decision maker's real question, does it say what the sources say, is testable.</p>
+    </div>
+    <div>
+      <h3>What we found, from three users, our own use, and the builder</h3>
+      <ul><li>The builder reports 636 accounts active in the past ninety days across 46 languages, and says Faithbridge now runs inside Bible Well and Audio Project Manager in production. We have not seen those integrations, and no user mentioned them.</li><li>All three users we reached are exegetes or consultants rather than mother-tongue translators. They ask in English and Hindi, and two said the next step is training translators to use it themselves.</li><li>Two said it helped partly; one said it did not. Two found it faster than looking things up. One has largely stopped: on her team exegesis is one person's job, so it did not fit how they work.</li><li>Two of the three do not know where their questions go, and one has pasted draft translation text into the tool.</li><li>The builder named the AI services — GPT 5.6 Luna and Cohere — and said both providers have committed not to train on the data.</li><li>Every answer costs the builder a call to an outside AI service — about one US cent a message, roughly a hundred dollars a month on his figures, and nothing to the teams using it.</li><li>In the one test question we ran ourselves, four of five statements traced back to the sources shown on screen; the fifth is still to be checked.</li></ul>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="foot"><span>Snapshot 29 September 2026 · Scores marked AI-proposed are drafts and will be replaced by reviewed scores</span><span>Evaluation framework v1 · Emerging Tech Summit 2026</span></div>
+</section>
+
+<!-- ====================================================== PAGE 2 -->
+<section class="page p2">
+  <div class="run"><span><b>ETS 2026</b> · Tool evaluation · Translation, written</span><span>Faithbridge · Findings &amp; Evidence (2 of 2)</span></div>
+
+  <h2>Findings &amp; Evidence</h2>
+  <p class="lead">Each score sits against a written anchor (1 unsatisfactory, 2 developing, 3 proficient, 4 exemplary). The basis column says what the score rests on and what would change it. Scores marked AI-proposed are drafts prepared from the evidence on file and are still to be reviewed by two people; the appendix at the back gives the wording each score is measured against.</p>
+
+  <table class="prof">
+    <thead><tr><th></th><th>Criterion</th><th>Score</th><th>Evidence</th><th>Basis</th></tr></thead>
+    <tbody>
+      
+      <tr class=""><td class="n">1</td><td class="c">Problem Alignment<small class="v">Decisive</small></td><td class="s"><span class="tile"><span class="num">2</span><span class="segs"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span></span><span class="prov ai">AI-proposed, contested</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">The documentation states the problem plainly: translators lose time searching through reference material for the passage in front of them. Of the three people who answered, two said it helped partly and one said it did not help. Comparing it with looking things up themselves or asking a consultant, one found it much faster, one somewhat faster and one about the same. Two of the three were hoping for deeper exegetical support than a tool that summarises existing resources can give. Would change it: the twenty-question test and more respondents</td></tr>
+      
+      <tr class=""><td class="n">2</td><td class="c">Setup Complexity</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">Support staff set up access for all three. Two had a useful answer the same day and one within a week, and a short walkthrough was enough for everyone. It can also be used through WhatsApp with no account at all. We have held it just below the top of the scale because every person we heard from had someone else do the setup.</td></tr>
+      
+      <tr class=""><td class="n">3</td><td class="c">Workflow Integration</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag test">Our testing</span></td><td class="b">Answers leave the tool by being copied; users write them down, discuss them with the team, or act on them directly in a draft. Linking a Paratext account unlocks more reference material but moves no text: no project text goes in and no notes come back. The builder says Faithbridge is now running inside two other products in their production systems — Bible Well and Audio Project Manager — and that it will likely reach Paratext 10 in some form. We have not seen those integrations ourselves, and no user we spoke to mentioned them.</td></tr>
+      
+      <tr class=""><td class="n">4</td><td class="c">User Reach & Adoption<small class="t">Needs real users</small></td><td class="s"><span class="tile"><span class="num">4</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></span><span class="prov ai">AI-proposed, contested</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">The builder reports 636 accounts active in the past ninety days, across 46 languages, with English, Spanish, Indonesian, French, Swahili, Tamil, Nepali, Portuguese, Hindi and Thai the most used. That is a substantial and established base, and the ninety-day window is a real definition rather than a vague one. It is the builder's own figure, and we have no way to check it: we reached three users ourselves, all in India, all through the same support network, and no separate figure for India was given.</td></tr>
+      
+      <tr class=""><td class="n">5</td><td class="c">Ease of Use & Learning Curve</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">A short walkthrough was enough for all three. The obstacles they named were teaching mother-tongue translators to phrase questions well, and a sense that the tool searches a narrow set of resources. Answers in Hindi were understandable for two and hard to follow for one.</td></tr>
+      
+      <tr class=""><td class="n">6</td><td class="c">Project Implementation<small class="t">Needs real users</small></td><td class="s"><span class="tile"><span class="num">2</span><span class="segs"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">Still unknown. The builder gave us active users but not projects or organisations, so we cannot say how many translation projects rely on it. Four languages across three organisations is what we could verify ourselves, with one regular user, one occasional and one who has largely stopped.</td></tr>
+      
+      <tr class=""><td class="n">7</td><td class="c">Implementation Horizon</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag doc">Documentation</span></td><td class="b">Announced as a beta in March 2025. The builder says it has no official status but is, in effect, still in beta. Since then it has gained a WhatsApp channel and a Paratext link, it is running inside two other products, and its privacy policy has been revised, so it is clearly being worked on. We found no version numbers, changelog or published plan. The builder expects the service to carry on as it has for the past two years, and that additional funding would let the team do more than it does now.</td></tr>
+      
+      <tr class=""><td class="n">8</td><td class="c">Workflow Stage Fit</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag doc">Documentation</span></td><td class="b">It does one job fully: helping a translator understand a passage before and while drafting. A question goes in by typing or speaking and an answer comes out by being copied. There is no continuity into a drafting or checking tool, so as built it cannot reach the top of the scale.</td></tr>
+      
+      <tr class=""><td class="n">9</td><td class="c">Post-Implementation Support<small class="t">Needs real users</small></td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">One person contacted their organisation's IT staff and had the issue resolved within a day; two had nothing to report. Every answer carries a star rating, there is a contact form, the product lead can be emailed directly, and a member of our own team provides local support.</td></tr>
+      
+      <tr class=""><td class="n">10</td><td class="c">Retention & Sustained Impact<small class="t">Needs real users</small></td><td class="s"><span class="tile"><span class="num">2</span><span class="segs"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag user">User-reported</span></td><td class="b">After four to six months, one person uses it a few times a week and would recommend it, one uses it a few times a month, and one has largely stopped: on her team exegesis is one person's job, so the tool did not fit the way the team works, though she keeps the account for occasional use. Three people is too few to say much.</td></tr>
+      
+      <tr class=""><td class="n">11</td><td class="c">Cost & Financial Sustainability<small class="v">Decisive</small></td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag builder">Builder claim</span></td><td class="b">If Faithbridge disappeared in two years, nothing a team had produced would be lost — it answers questions rather than holding work, and answers are copied out as they are used. What a team would lose is a way of consulting reference material quickly, and if translators had been trained to depend on it, that training would need redirecting. On the builder's own figures, the running cost is about one US cent per message, which currently comes to roughly a hundred dollars a month, carried by the builder and not by teams. On that basis he expects the service to keep running whether or not it receives additional funding, as it has for the past two years; funding would let the team do more with it rather than keep it alive. That is a modest and predictable cost for a service at this scale, and it changes the picture: the exposure here is not that the tool is expensive to run, but that no one has committed in writing to running it. Would change it: a written commitment to keep the service running, which would put it at the top of the scale</td></tr>
+      
+      <tr class=""><td class="n">12</td><td class="c">Data Governance & Sovereignty<small class="v">Decisive</small></td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag doc">Documentation</span></td><td class="b">The builder named the AI services on 24 September: GPT 5.6 Luna and Cohere, chosen because both providers have committed not to train on the data. The published policy at faithbridge.multilingualai.com/privacy, dated 9 September 2026, says conversations are kept while an account is active, speech is transcribed and the recording discarded (though the audio Faithbridge generates for its own answers may be kept so it can be replayed), questions go to outside AI providers whose terms forbid training on them, nothing is sold, and data can be deleted on request. Two things it leaves open: server logs, which it says may include message content, are kept for “a limited period” that is not specified; and it does not say in which countries the processing happens. Getting a copy of your data, or having it deleted, means emailing a named person rather than following a process. Two of the three users we spoke to did not know where their questions go, and one has pasted draft translation text into the tool. Questions asked over WhatsApp also pass through Meta's systems. The builder says the service was built for queries he does not expect to be sensitive — the example he gave is “Tell me about Galatia” rather than anything personal — and that zero data retention could be offered if users wanted it, at some cost to answer quality and to support. That is worth weighing against what we found: one of the three users we spoke to has pasted draft translation text into the tool, which is not the kind of query the design assumes. Would change it: a specified retention period, where processing happens, or the zero-retention option the builder says is possible</td></tr>
+      
+      <tr class=""><td class="n">13</td><td class="c">Explainability & Human Steering</td><td class="s"><span class="tile"><span class="num">3</span><span class="segs"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></span><span class="prov ai">AI-proposed</span></td><td class="g"><span class="tag test">Our testing</span></td><td class="b">The tool is built to be checked: each answer shows the sources it drew on, with the full text one click away, and names which of them fed the reply. In the one question we ran ourselves, four of five claims traced back to the sources shown; the fifth was attributed to a note we have not yet opened. Users open those sources sometimes (two) or never (one). The score describes the tool's transparency, not whether people take advantage of it.</td></tr>
+      
+      <tr class="pend"><td class="n">14</td><td class="c">Cultural & Safety Alignment</td><td class="s"><span class="tile"><span class="num">–</span><span class="segs"><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></span></td><td class="g"><span class="tag pending">Pending</span></td><td class="b">The structure is favourable: a broad mix of resources from several publishers, each of which the team can switch on or off, so a team controls which traditions inform an answer. One of the three users had seen an answer that did not match its sources or its language, without giving detail, and Hindi answers were hard to follow for one of them. Our own twenty-question test will decide this score.</td></tr>
+      
+    </tbody>
+  </table>
+
+  <div class="bottom">
+    <div>
+      <h3>Still open</h3>
+      <ul><li>How long server logs are kept, and in which countries the questions are processed. The published policy of 9 September 2026 says logs are kept for a limited period without saying how long, and says nothing about where processing happens.</li><li>Whether anyone is committed to keeping the service running. The cost is modest and the builder expects to carry on, but no commitment is written down anywhere a team could rely on.</li><li>How many projects and organisations use it. We were given active users, which is not the same thing.</li><li>Whether it works for mother-tongue translators. Everyone we reached uses it on a team's behalf, which is not the person the design assumes.</li><li>The twenty-question test, two evaluators independently: Ruth 2 and Luke 15:11-32.</li><li>Who supports users day to day — asked, not yet answered.</li></ul>
+      <div class="box"><b>Builder's note.</b> From the builder, on data retention: Faithbridge was built for queries we do not expect to be sensitive — “Tell me about Galatia” rather than anything personal — so it was designed on the basis that queries are fine to log. If that is a concern for a team, zero data retention could be offered, though it would cost something in answer quality and make specific support harder.</div>
+    </div>
+    <div>
+      <h3>Where to find it</h3>
+      <p><a href="https://faithbridge.multilingualai.com">faithbridge.multilingualai.com</a>, or through WhatsApp · project page at <a href="https://ai.sil.org/projects/faithbridge">ai.sil.org/projects/faithbridge</a> · privacy policy at <a href="https://faithbridge.multilingualai.com/privacy">faithbridge.multilingualai.com/privacy</a>, dated 9 September 2026 · contact through <a href="https://ai.sil.org/contact">ai.sil.org/contact</a></p>
+      <h3 style="margin-top:8px">The user it assumes</h3>
+      <p>A translator with a phone or browser and an internet connection, asking in their own language. The users we found are exegetes asking in English and Hindi on behalf of teams, which is a different person from the one the design assumes. Also: a Paratext ID for the full resource set; copying answers into notes by hand; acceptance that questions pass through third-party AI providers and, on WhatsApp, through Meta.</p>
+      <h3 style="margin-top:8px">How to read this</h3>
+      <p>A score is chosen by reading the four descriptions in the appendix and picking the one that fits the evidence. <b style="color:var(--ink-2)">AI-proposed</b> means a draft score, prepared from the evidence on file and still to be reviewed by two people. <b style="color:var(--veto)">Contested</b> means the evidence points both ways, or the rubric's own wording does not settle the case — the reasoning beside it is worth reading. Figures the builder gave us are labelled as theirs. Scores are never added together or averaged.</p>
+    </div>
+  </div>
+
+  <div class="aiuse"><b>How this page was put together.</b> Findings were gathered by the evaluation team through a user survey, our own recorded use of the tool, a reading of its published description and privacy policy, and correspondence with the builder. The scores are drafts prepared with AI assistance from that evidence and are still to be reviewed by two people.</div>
+
+  <div class="spacer"></div>
+  <div class="foot"><span>Snapshot 29 September 2026 · Evidence gathered 23–29 September 2026</span><span>Evaluation framework v1 · Emerging Tech Summit 2026</span></div>
+</section>
+
+
+<!-- ====================================================== APPENDIX -->
+
+
+
+<section class="page">
+  <div class="run"><span><b>ETS 2026</b> · Tool evaluation</span><span>Appendix: the rubric (1 of 2)</span></div>
+  
+  <h2 style="font-size:17pt">Appendix: the full rubric</h2>
+  <p class="cover-sub" style="font-size:8.8pt">The wording every score is measured against. A score is chosen by reading these four descriptions and picking the one that fits what the evidence shows — not by impression, and not on a curve. <span style="color:var(--veto);font-weight:600">&#9679;</span> decisive criterion · <span style="color:var(--user);font-weight:600">&#9679;</span> needs real users (Tier 1 only).</p>
+  
+  <table class="matrix">
+    <thead><tr><th class="c">Criterion</th><th>1 — Unsatisfactory</th><th>2 — Developing</th><th>3 — Proficient</th><th>4 — Exemplary</th></tr></thead>
+    <tbody>
+    
+      <tr><td class="c"><span class="num">1</span>Problem Alignment<small>What problem does it solve?</small><small class="v">&#9679; decisive</small></td><td>Solves an ill-defined or non-existent problem; no alignment with target audience needs.</td><td>Addresses a minor issue, but core pain points remain unresolved.</td><td>Solves a clear, well-defined problem relevant to field translation teams.</td><td>Solves a high-priority, critical problem with significant, measurable impact.</td></tr>
+    
+      <tr><td class="c"><span class="num">2</span>Setup Complexity<small>How easy is it to set up?</small></td><td>Extremely complex; requires specialized technical skills, custom code, or extensive workarounds.</td><td>Difficult setup; requires moderate technical support or multi-step configuration.</td><td>Straightforward setup; standard user can complete configuration with documentation.</td><td>Turnkey, plug-and-play setup; minimal to no technical intervention required.</td></tr>
+    
+      <tr><td class="c"><span class="num">3</span>Workflow Integration<small>Can this tool be easily integrated into the workflow?</small></td><td>Incompatible; disrupts existing workflows and creates significant friction or duplicate work.</td><td>Integrates with difficulty; requires manual data re-entry or awkward workarounds.</td><td>Integrates smoothly into standard field tools and processes with minimal friction.</td><td>Seamless native integration; fully automated data flow between tools and platforms.</td></tr>
+    
+      <tr><td class="c"><span class="num">4</span>User Reach & Adoption<small>How many people are using it, and who are they?</small><small class="t">&#9679; needs real users</small></td><td>No reachable active users; purely theoretical or tested only in demo settings.</td><td>Very few active users (1–5); restricted to a single closed group.</td><td>Moderate active user base across target user roles.</td><td>Large, established active user base across multiple field teams and roles.</td></tr>
+    
+      <tr><td class="c"><span class="num">5</span>Ease of Use & Learning Curve<small>How intuitive is the tool to use daily?</small></td><td>Unintuitive interface; steep learning curve requiring extensive ongoing training or technical intervention.</td><td>Somewhat complex interface; requires moderate user training and frequent reliance on support manuals.</td><td>User-friendly and intuitive for everyday translation work; minimal training required for field teams.</td><td>Highly intuitive and accessible; seamless navigation with virtually no learning curve for non-technical users.</td></tr>
+    
+      <tr><td class="c"><span class="num">6</span>Project Implementation<small>How many projects have implemented this tool?</small><small class="t">&#9679; needs real users</small></td><td>0 real-world projects implemented.</td><td>1 active pilot project.</td><td>2–4 active field projects currently using the tool.</td><td>5+ real-world translation projects actively relying on the tool.</td></tr>
+    
+      <tr><td class="c"><span class="num">7</span>Implementation Horizon<small>What can be implemented now, and what is promised later?</small></td><td>Unclear immediate utility and no long-term roadmap.</td><td>Limited current functionality; long-term roadmap exists but lacks timeline or feasibility.</td><td>Core features ready for immediate deploy; clear long-term feature roadmap in place.</td><td>Fully functional immediate capabilities paired with a realistic, high-value long-term plan.</td></tr>
+    
+    </tbody>
+  </table>
+  <div class="spacer"></div>
+  <div class="foot"><span>Snapshot of 1 October 2026</span><span>Evaluation framework v1 · Emerging Tech Summit 2026</span></div>
+</section>
+
+<section class="page">
+  <div class="run"><span><b>ETS 2026</b> · Tool evaluation</span><span>Appendix: the rubric (2 of 2)</span></div>
+  
+  <table class="matrix">
+    <thead><tr><th class="c">Criterion</th><th>1 — Unsatisfactory</th><th>2 — Developing</th><th>3 — Proficient</th><th>4 — Exemplary</th></tr></thead>
+    <tbody>
+    
+      <tr><td class="c"><span class="num">8</span>Workflow Stage Fit<small>Where in its domain's workflow does the tool fit, and how much of that workflow does it cover?</small></td><td>Cannot be placed at any recognised stage of its declared domain's workflow, or the fit is so narrow or ill-defined that a team could not say when in their process to use it.</td><td>Usable at a single stage, but with significant constraints or gaps; the stage's core task is only partly addressed.</td><td>Fully functional at one or more core stages of its domain's workflow, with a clear hand-off into and out of the tool.</td><td>Covers multiple stages of its domain's workflow with continuity between them — outputs of one stage feed the next without re-entry.</td></tr>
+    
+      <tr><td class="c"><span class="num">9</span>Post-Implementation Support<small>What support is available after a team adopts it?</small><small class="t">&#9679; needs real users</small></td><td>No post-launch support, contact points, or documentation available.</td><td>Minimal support; limited to unmaintained community forums or slow response times.</td><td>Reliable support available via direct contact channels with clear user documentation.</td><td>Comprehensive support including direct helpdesk, ongoing training, and regular updates.</td></tr>
+    
+      <tr><td class="c"><span class="num">10</span>Retention & Sustained Impact<small>What difference is it making on the ground, over time?</small><small class="t">&#9679; needs real users</small></td><td>Tool is abandoned shortly after launch; zero sustained adoption or measurable impact on ground operations.</td><td>High drop-off rate after initial trial; minimal lasting change in team productivity or workflows over 6 months.</td><td>Consistent usage sustained after 6+ months; clear, positive shift in field team efficiency or output quality.</td><td>Entrenched as an essential tool with near-total user retention; measurable, long-term transformational impact on ground work.</td></tr>
+    
+      <tr><td class="c"><span class="num">11</span>Cost & Financial Sustainability<small>Is the pricing model viable and sustainable long-term?</small><small class="v">&#9679; decisive</small></td><td>Cost-prohibitive or opaque pricing; reliant on unsustainable short-term subsidies with high financial risk.</td><td>High operational or licensing costs; partially sustainable but creates budget strain over time.</td><td>Predictable, fair pricing structure supported by a clear, long-term financial plan.</td><td>Free or open-access, or highly cost-effective; backed by a fully sustainable funding and maintenance model.</td></tr>
+    
+      <tr><td class="c"><span class="num">12</span>Data Governance & Sovereignty<small>How are data ownership, privacy, and security handled?</small><small class="v">&#9679; decisive</small></td><td>No data privacy controls; vendor retains unrestricted ownership or rights over sensitive translation content.</td><td>Basic security measures, but vague data retention, export, and regional privacy compliance policies.</td><td>Clear data ownership rights retained by the translation team, with standard privacy and export protocols.</td><td>Complete data sovereignty guaranteed; robust encryption, strict privacy safeguards, and full local data control.</td></tr>
+    
+      <tr><td class="c"><span class="num">13</span>Explainability & Human Steering<small>Can users understand and control why the AI gives an answer?</small></td><td>Opaque “black box” system; no rationale provided for outputs, and users cannot adjust, override, or guide model decision-making.</td><td>Minimal rationale or source tracking; limited ability to tweak prompt settings or influence underlying output logic.</td><td>Clear output explanations or source references provided; users can easily adjust steering parameters and override AI outputs.</td><td>Fully transparent logic, traceable citations, and granular human controls to tune, override, and direct AI decision-making at every stage.</td></tr>
+    
+      <tr><td class="c"><span class="num">14</span>Cultural & Safety Alignment<small>Are outputs culturally accurate, ethically aligned, and free of regional bias?</small></td><td>Outputs display significant regional bias, offensive or harmful content, or complete disregard for local cultural context.</td><td>Inconsistent safety controls; occasional cultural inaccuracies, subtle regional biases, or weak ethical boundary safeguards.</td><td>Generally reliable safety and ethical boundaries; culturally appropriate outputs with minimal regional bias.</td><td>Rigorously calibrated for localized ethics, nuance, and safety; zero regional bias with complete context awareness and customization.</td></tr>
+    
+    </tbody>
+  </table>
+  <div class="spacer"></div>
+  <div class="foot"><span>Snapshot of 1 October 2026</span><span>Evaluation framework v1 · Emerging Tech Summit 2026</span></div>
+</section>
+
+
+</body>
+</html>
