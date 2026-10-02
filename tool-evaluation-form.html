@@ -573,7 +573,7 @@ function slug(){ return (S.meta.name||"tool").toLowerCase().replace(/[^a-z0-9]+/
    same payload and appends one row per criterion. Set SHEET_ENDPOINT below to that
    deployment's URL (see apps-script/SETUP.md). Until it is set, submitting just warns
    and does nothing destructive — the local Download buttons still work regardless. */
-const SHEET_ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbx4H4slWoZMnElpHtT9QQrfKWvn6q-PokKAE4Wsj57Q5C34lDF0EREoBY4uq0GxnICz/exec";
 function uuid(){
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{
     const r=Math.random()*16|0, v=c==="x"?r:(r&0x3|0x8); return v.toString(16); });
