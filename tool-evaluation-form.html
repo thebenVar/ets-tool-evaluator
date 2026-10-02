@@ -21,6 +21,8 @@
   textarea{resize:vertical;min-height:70px}
   label.fl{display:block;font-size:12.5px;color:var(--ink2);margin:0 0 5px}
   .hint{font-size:11.5px;color:var(--ink3);margin-top:4px}
+  .req{color:var(--veto);font-weight:600}
+  .pagenav{display:flex;justify-content:space-between;align-items:center;margin:4px 0 14px}
 
   header.top{background:var(--paper);border:1px solid var(--rule);padding:16px 20px;margin-bottom:14px}
   header.top h1{font-size:22px}
@@ -188,10 +190,10 @@
   <section class="pane on" id="pane-tool">
     <div class="card">
       <h3>What are you assessing, and who are you?</h3>
-      <p class="lead">Your name is recorded with the scores so several people can assess the same tool separately and compare afterwards.</p>
+      <p class="lead">Your name is recorded with the scores so several people can assess the same tool separately and compare afterwards. Fields marked <span class="req">*</span> are needed before you can continue to scoring.</p>
       <div class="row">
         <div>
-          <label class="fl">Is this a real evaluation, or are you just trying the form out?</label>
+          <label class="fl">Is this a real evaluation, or are you just trying the form out? <span class="req">*</span></label>
           <div class="seg" id="seg-real">
             <button data-v="real">Real evaluation</button><button data-v="mock">Just practising</button>
           </div>
@@ -199,12 +201,12 @@
         </div>
       </div>
       <div class="row">
-        <div><label class="fl">Tool name</label><input type="text" id="f-name" placeholder="e.g. Scripture Forge"></div>
+        <div><label class="fl">Tool name <span class="req">*</span></label><input type="text" id="f-name" placeholder="e.g. Scripture Forge"></div>
         <div><label class="fl">Who builds it</label><input type="text" id="f-builder" placeholder="organisation or team"></div>
       </div>
       <div class="row">
         <div><label class="fl">Where to find it</label><input type="text" id="f-url" placeholder="website, or how access is obtained"></div>
-        <div><label class="fl">Your name</label><input type="text" id="f-scorer" placeholder="the person filling this in"></div>
+        <div><label class="fl">Your name <span class="req">*</span></label><input type="text" id="f-scorer" placeholder="the person filling this in"></div>
       </div>
       <div class="row">
         <div><label class="fl">What kind of work is it for</label><input type="text" id="f-domain" placeholder="e.g. written translation, oral translation, publishing"></div>
@@ -216,14 +218,14 @@
       </div>
       <div class="row">
         <div>
-          <label class="fl">Does it use AI?</label>
+          <label class="fl">Does it use AI? <span class="req">*</span></label>
           <div class="seg" id="seg-ai">
             <button data-v="yes">Yes</button><button data-v="no">No</button>
           </div>
           <div class="hint">If it does not, criterion 13 is set aside as not applicable.</div>
         </div>
         <div>
-          <label class="fl">Can you reach people who use it in real work?</label>
+          <label class="fl">Can you reach people who use it in real work? <span class="req">*</span></label>
           <div class="seg" id="seg-tier">
             <button data-v="1">Yes</button><button data-v="2">No</button>
           </div>
@@ -237,13 +239,13 @@
       <p class="lead">A tool has to pass both to be worth assessing. If it fails the first, say so and stop: naming a tool as unassessed is a better outcome than scoring it on guesswork.</p>
 
       <div class="gate" id="gate1">
-        <label class="fl"><b>Can you assess it?</b> Can you find out enough to answer the fourteen criteria honestly — from its users, its documentation, its builder, or your own use of it?</label>
+        <label class="fl"><b>Can you assess it?</b> <span class="req">*</span> Can you find out enough to answer the fourteen criteria honestly — from its users, its documentation, its builder, or your own use of it?</label>
         <div class="seg" id="seg-g1"><button data-v="pass">Yes</button><button data-v="fail">No</button></div>
         <textarea id="f-g1" placeholder="What you can find out, and what you cannot."></textarea>
       </div>
 
       <div class="gate" id="gate2">
-        <label class="fl"><b>Is it worth your organisation's attention now?</b> Does it address a problem you actually have, or a decision you are weighing?</label>
+        <label class="fl"><b>Is it worth your organisation's attention now?</b> <span class="req">*</span> Does it address a problem you actually have, or a decision you are weighing?</label>
         <div class="seg" id="seg-g2"><button data-v="pass">Yes</button><button data-v="fail">No</button></div>
         <textarea id="f-g2" placeholder="Why this tool, and why now."></textarea>
       </div>
@@ -253,6 +255,11 @@
       <h3>How close are you to this tool?</h3>
       <p class="lead">Anyone who builds it, supports it, or has a stake in it being adopted should say so here, and should not be the only person scoring it. Declaring closeness is not a disqualification; hiding it is.</p>
       <textarea id="f-prox" placeholder="e.g. Nobody on our team has any connection to this tool. — or — I support teams using it, so I am not the only scorer."></textarea>
+    </div>
+
+    <div class="pagenav">
+      <span></span>
+      <button class="act" id="btn-next-1">Continue to evidence and scoring →</button>
     </div>
   </section>
 
@@ -266,11 +273,20 @@
         Click <b>i</b> beside any criterion for a fuller explanation of what it asks and what to look for.</p>
     </div>
     <div id="crits"></div>
+
+    <div class="pagenav">
+      <button class="act sec" id="btn-prev-2">← Back to the tool</button>
+      <button class="act" id="btn-next-2">Continue to summary →</button>
+    </div>
   </section>
 
   <!-- =================== SUMMARY =================== -->
   <section class="pane" id="pane-summary">
     <div class="page" id="summary"></div>
+    <div class="pagenav">
+      <button class="act sec" id="btn-prev-3">← Back to evidence and scoring</button>
+      <span></span>
+    </div>
   </section>
 </div>
 
@@ -628,13 +644,46 @@ function paint(){
   summary();
 }
 
+/* ---------- pane navigation ---------- */
+const PANE_ORDER=["tool","evidence","summary"];
+function currentPane(){ return document.querySelector("section.pane.on").id.replace("pane-",""); }
+function goToPane(name){
+  document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on", x.dataset.p===name));
+  document.querySelectorAll("section.pane").forEach(p=>p.classList.toggle("on", p.id==="pane-"+name));
+  window.scrollTo(0,0);
+}
+function missingToolFields(){
+  const req=[
+    {ok:!!S.meta.real, label:"whether this is a real evaluation or a practice run", el:document.getElementById("seg-real")},
+    {ok:(S.meta.name||"").trim(), label:"the tool name", el:document.getElementById("f-name")},
+    {ok:(S.meta.scorer||"").trim(), label:"your name", el:document.getElementById("f-scorer")},
+    {ok:!!S.meta.ai, label:"whether it uses AI", el:document.getElementById("seg-ai")},
+    {ok:!!S.meta.tier, label:"whether you can reach people who use it in real work", el:document.getElementById("seg-tier")},
+    {ok:!!S.meta.g1, label:"whether you can assess it", el:document.getElementById("gate1")},
+    {ok:!!S.meta.g2, label:"whether it's worth your organisation's attention now", el:document.getElementById("gate2")}
+  ];
+  return req.filter(r=>!r.ok);
+}
+function tryGoToPane(target){
+  const cur=currentPane(), curIdx=PANE_ORDER.indexOf(cur), tgtIdx=PANE_ORDER.indexOf(target);
+  if(cur==="tool" && tgtIdx>curIdx){
+    const missing=missingToolFields();
+    if(missing.length){
+      alert("Before moving on, please fill in:\n\n- "+missing.map(m=>m.label).join("\n- "));
+      if(missing[0].el) missing[0].el.scrollIntoView({block:"center", behavior:"smooth"});
+      return;
+    }
+  }
+  save();
+  goToPane(target);
+}
 document.querySelectorAll("nav.tabs button").forEach(b=>{
-  b.addEventListener("click",()=>{
-    document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x===b));
-    document.querySelectorAll("section.pane").forEach(p=>p.classList.toggle("on", p.id==="pane-"+b.dataset.p));
-    window.scrollTo(0,0);
-  });
+  b.addEventListener("click",()=>tryGoToPane(b.dataset.p));
 });
+document.getElementById("btn-next-1").addEventListener("click",()=>tryGoToPane("evidence"));
+document.getElementById("btn-prev-2").addEventListener("click",()=>tryGoToPane("tool"));
+document.getElementById("btn-next-2").addEventListener("click",()=>tryGoToPane("summary"));
+document.getElementById("btn-prev-3").addEventListener("click",()=>tryGoToPane("evidence"));
 document.getElementById("btn-json").addEventListener("click",()=>
   dl("evaluation-"+slug()+".json", JSON.stringify({format:"tool-evaluation/2", meta:S.meta, rows:rows()},null,1),"application/json"));
 document.getElementById("btn-csv").addEventListener("click",()=>{
