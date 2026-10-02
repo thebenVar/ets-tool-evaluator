@@ -1,0 +1,7 @@
+{
+  "name": "ets-tool-evaluator",
+  "private": true,
+  "dependencies": {
+    "@vercel/edge": "^1.1.1"
+  }
+}
